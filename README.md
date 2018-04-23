@@ -48,7 +48,7 @@ mvn install
 spring:
   grpc:
     enable: true
-    port: 6566
+    port: 6565
 ```
 
 4.3 示例：gRPC 客户端，在 `application.yml` 中添加配置
