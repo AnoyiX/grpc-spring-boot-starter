@@ -1,0 +1,11 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "org.springframework.grpc.config.GrpcProperties",
+      "name": "spring.grpc",
+      "type": "org.springframework.grpc.config.GrpcProperties"
+    }
+  ],
+  "properties": []
+}
