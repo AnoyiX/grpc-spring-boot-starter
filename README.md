@@ -5,7 +5,7 @@
 git clone https://github.com/ChinaSilence/spring-boot-starter-grpc.git
 ```
 
-**2、安装到本地 Maven 仓库【重要，否则】**
+**2、安装到本地 Maven 仓库【重要，否则代码报错】**
 ```
 mvn install
 ```
