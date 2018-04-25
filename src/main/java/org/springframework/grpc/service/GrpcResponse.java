@@ -8,6 +8,11 @@ public class GrpcResponse {
     private int status;
 
     /**
+     * 信息提示
+     */
+    private String message;
+
+    /**
      * 返回结果
      */
     private Object result;
@@ -19,6 +24,14 @@ public class GrpcResponse {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public Object getResult() {

@@ -32,10 +32,13 @@ import org.springframework.util.StringUtils;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 @Configuration
 @EnableConfigurationProperties(GrpcProperties.class)
 public class GrpcAutoConfiguration {
+
+    private static final Logger log = Logger.getLogger(GrpcAutoConfiguration.class.getName());
 
     private final AbstractApplicationContext applicationContext;
 
@@ -102,7 +105,6 @@ public class GrpcAutoConfiguration {
                 for (BeanDefinition beanDefinition : beanDefinitions) {
                     if (beanDefinition instanceof AnnotatedBeanDefinition) {
                         String className = beanDefinition.getBeanClassName();
-                        System.err.println(className);
                         if (StringUtils.isEmpty(className)){
                             continue;
                         }
@@ -111,7 +113,7 @@ public class GrpcAutoConfiguration {
                             InvocationHandler invocationHandler = new GrpcServiceProxy<>(target);
                             String[] path = className.split("\\.");
                             String beanName = path[path.length - 1];
-                            beanName = (new StringBuilder()).append(Character.toLowerCase(beanName.charAt(0))).append(beanName.substring(1)).toString();
+                            beanName = Character.toLowerCase(beanName.charAt(0)) + beanName.substring(1);
                             ((DefaultListableBeanFactory) this.beanFactory).registerSingleton(beanName, Proxy.newProxyInstance(GrpcService.class.getClassLoader(), new Class[]{target}, invocationHandler));
                         } catch (ClassNotFoundException e) {
                             e.printStackTrace();
@@ -119,10 +121,9 @@ public class GrpcAutoConfiguration {
                     }
                 }
             } catch (IllegalStateException ex) {
-                System.err.println("Could not determine auto-configuration package, automatic mapper scanning disabled.");
+                log.warning("Could not determine auto-configuration package, automatic mapper scanning disabled.");
             }
         }
     }
-
 
 }
