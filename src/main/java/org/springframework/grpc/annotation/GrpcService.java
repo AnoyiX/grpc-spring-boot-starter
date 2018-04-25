@@ -11,6 +11,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface GrpcService {
 
+    // remote server hostname
     String server() default "";
+
+    // @Service annotated bean's name
+    String name() default  "";
 
 }

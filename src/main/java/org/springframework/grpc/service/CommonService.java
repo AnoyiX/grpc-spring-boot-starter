@@ -6,10 +6,10 @@ import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.grpc.constant.GrpcResponseStatus;
 import org.springframework.grpc.util.ProtobufUtils;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,30 +34,44 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
         String beanName = grpcRequest.getBeanName();
         Object bean = getBean(beanName);
         if (bean != null) {
-            try {
-                Object[] args = grpcRequest.getArgs();
-                Object result;
-                if (args != null) {
-                    Class[] argsClass = new Class[args.length];
-                    for (int i = 0, j = args.length; i < j; i++) {
-                        argsClass[i] = args[i].getClass();
-                    }
-                    Method method = bean.getClass().getDeclaredMethod(grpcRequest.getMethodName(), argsClass);
-                    result = method.invoke(bean, args);
-                } else {
-                    Method method = bean.getClass().getDeclaredMethod(grpcRequest.getMethodName());
-                    result = method.invoke(bean);
+            String methodName = grpcRequest.getMethodName();
+            Object[] args = grpcRequest.getArgs();
+            Object result;
+            if (args != null) {
+                Class[] argsClass = new Class[args.length];
+                for (int i = 0, j = args.length; i < j; i++) {
+                    argsClass[i] = args[i].getClass();
                 }
-                response.setStatus(GrpcResponseStatus.SUCCESS.getCode());
-                response.setResult(result);
-            } catch (Exception e) {
-                log.warning(e.getMessage());
-                e.printStackTrace();
-                response.setStatus(GrpcResponseStatus.ERROR.getCode());
+                try {
+                    Method method = bean.getClass().getDeclaredMethod(methodName, argsClass);
+                    try {
+                        result = method.invoke(bean, args);
+                        response.success(result);
+                    } catch (IllegalAccessException e) {
+                        response.error("Cannot access method '" + methodName + "'.");
+                    } catch (InvocationTargetException e) {
+                        response.error("InvocationTargetException : " + e.getMessage());
+                    }
+                } catch (NoSuchMethodException e) {
+                    response.error("Service method '" + methodName + "' not found.");
+                }
+            } else {
+                try {
+                    Method method = bean.getClass().getDeclaredMethod(grpcRequest.getMethodName());
+                    try {
+                        result = method.invoke(bean);
+                        response.success(result);
+                    } catch (IllegalAccessException e) {
+                        response.error("Cannot access method '" + methodName + "'.");
+                    } catch (InvocationTargetException e) {
+                        response.error("InvocationTargetException : " + e.getMessage());
+                    }
+                } catch (NoSuchMethodException e) {
+                    response.error("Service method '" + methodName + "' not found.");
+                }
             }
         } else {
-            response.setMessage("Service bean '" + beanName + "' not found.");
-            response.setStatus(GrpcResponseStatus.ERROR.getCode());
+            response.error("Service bean '" + beanName + "' not found.");
         }
         ByteString bytes = ByteString.copyFrom(ProtobufUtils.serialize(response));
         GrpcService.Response grpcResponse = GrpcService.Response.newBuilder().setReponse(bytes).build();
@@ -68,7 +82,7 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
     /**
      * Get Service Bean
      */
-    private Object getBean(String beanName) throws NoSuchBeanDefinitionException{
+    private Object getBean(String beanName) throws NoSuchBeanDefinitionException {
         if (serviceBeanMap.containsKey(beanName)) {
             return serviceBeanMap.get(beanName);
         }
@@ -80,7 +94,7 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
             // match bean
             String[] serviceBeanNames = applicationContext.getBeanNamesForAnnotation(Service.class);
             for (String serviceBeanName : serviceBeanNames) {
-                if (serviceBeanName.contains(beanName)){
+                if (serviceBeanName.contains(beanName)) {
                     Object bean = applicationContext.getBean(serviceBeanName);
                     serviceBeanMap.put(beanName, bean);
                     return bean;

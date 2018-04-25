@@ -114,7 +114,8 @@ public class GrpcAutoConfiguration {
                             String[] path = className.split("\\.");
                             String beanName = path[path.length - 1];
                             beanName = Character.toLowerCase(beanName.charAt(0)) + beanName.substring(1);
-                            ((DefaultListableBeanFactory) this.beanFactory).registerSingleton(beanName, Proxy.newProxyInstance(GrpcService.class.getClassLoader(), new Class[]{target}, invocationHandler));
+                            Object proxy = Proxy.newProxyInstance(GrpcService.class.getClassLoader(), new Class[]{target}, invocationHandler);
+                            ((DefaultListableBeanFactory) this.beanFactory).registerSingleton(beanName, proxy);
                         } catch (ClassNotFoundException e) {
                             e.printStackTrace();
                         }

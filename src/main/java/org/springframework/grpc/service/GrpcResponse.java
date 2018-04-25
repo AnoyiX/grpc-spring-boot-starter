@@ -1,5 +1,7 @@
 package org.springframework.grpc.service;
 
+import org.springframework.grpc.constant.GrpcResponseStatus;
+
 public class GrpcResponse {
 
     /**
@@ -41,4 +43,15 @@ public class GrpcResponse {
     public void setResult(Object result) {
         this.result = result;
     }
+
+    public void error(String message){
+        this.message = message;
+        this.status = GrpcResponseStatus.ERROR.getCode();
+    }
+
+    public void success(Object result){
+        this.result = result;
+        this.status = GrpcResponseStatus.SUCCESS.getCode();
+    }
+
 }
