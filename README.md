@@ -1,20 +1,3 @@
-### gRPC 简介
-**gRPC** 是一个现代开源的高性能 RPC 框架，可以在任何环境下运行。它可以有效地将数据中心内和跨数据中心的服务与可插拔支持进行负载均衡、跟踪、健康检查和认证。它也适用于分布式计算，将不同设备、移动应用程序和浏览器连接到后端服务。
-
-**主要使用场景：**
-- 在微服务架构中有效地连接多个服务
-- 将移动设备、浏览器客户端连接到后端服务
-- 生成高效的客户端库
-
-**核心功能：**
-- 10 种语言的客户端库支持
-- 高效、简单的服务定义框架
-- 基于 http/2 传输的双向流式传输
-- 可插拔的认证、跟踪、负载均衡和健康检查
-
-![](https://upload-images.jianshu.io/upload_images/3424642-1cca7942610e13c4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
-
-
 ### Spring Boot 快速集成 gRPC
 
 **1、获取 spring-boot-starter-grpc 源码**
@@ -22,7 +5,7 @@
 git clone https://github.com/ChinaSilence/spring-boot-starter-grpc.git
 ```
 
-**2、安装到本地 Maven 仓库**
+**2、安装到本地 Maven 仓库【重要，否则】**
 ```
 mvn install
 ```
@@ -122,8 +105,10 @@ public class HelloService{
 import org.springframework.grpc.annotation.GrpcService;
 
 /**
- * 使用 @GprcService 注解定义远程服务，server 指定远程服务名，必须在 application.yml 中定义才能使用
- * 方法名 、参数 、 返回结果 必须与服务提供方一致
+ * 使用 @GprcService 注解定义远程服务，server 指定远程服务名，必须在 application.yml 中定义才能使用，
+ * 方法名 、参数 、 返回结果 必须与服务提供方一致，
+ * 除了 server 属性，还有 name 属性，name 属性可以指定远程服务的 beanName，
+ * 默认情况下，远程 beanName 会自动匹配，例如： @Service 注解 HelloService 类，或者 @Service 注解 HelloServiceImpl 类，都能正常获取到 Bean
  */
 @GrpcService(server = "localhost")
 public interface HelloService {
@@ -171,62 +156,9 @@ public interface HelloService {
     }
 ```
 
-4.4.4 【测试使用】示例：为方便调试，通过原生方式调用远程服务，无需依赖 Spring Boot 
-```
-import com.alibaba.fastjson.JSON;
-import com.anoyi.rpc.CommonServiceGrpc;
-import com.anoyi.rpc.GrpcService;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import org.springframework.grpc.service.GrpcRequest;
+4.4.4 【测试使用】示例：为方便调试，通过原生方式调用远程服务，无需依赖 Spring Boot
 
-import java.util.concurrent.TimeUnit;
-
-public class GrpcClient {
-
-    private final ManagedChannel channel;
-    private final CommonServiceGrpc.CommonServiceBlockingStub blockingStub;
-
-    public GrpcClient(String host, int port) {
-        this(ManagedChannelBuilder.forAddress(host, port).usePlaintext().build());
-    }
-
-    private GrpcClient(ManagedChannel channel) {
-        this.channel = channel;
-        blockingStub = CommonServiceGrpc.newBlockingStub(channel);
-    }
-
-    public static void main(String[] args) throws Exception {
-        GrpcClient client = new GrpcClient("localhost", 6565);
-        try {
-            for (int i = 0; i < 100; i++) {
-                String words = "world - " + i;
-                client.say(words);
-            }
-        } finally {
-            client.shutdown();
-        }
-    }
-
-    private void shutdown() throws InterruptedException {
-        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-    }
-
-    private void say(String words) {
-        GrpcRequest grpcRequest = new GrpcRequest();
-        grpcRequest.setBeanName("helloService");
-        grpcRequest.setMethodName("say");
-        Object[] params = {words};
-        grpcRequest.setArgs(params);
-        System.out.println("远程调用 " + grpcRequest.getServiceBeanName() + "." + grpcRequest.getServiceMethodName() + " ");
-        byte[] bytes = ProtobufUtils.serialize(grpcRequest);
-        GrpcService.Request request = GrpcService.Request.newBuilder().setRequest(ByteString.copyFrom(bytes)).build();
-        GrpcService.Response response = blockingStub.handle(request);
-        System.out.println("远程调用结果: " + response.getReponse());
-    }
-
-}
-```
+[https://github.com/ChinaSilence/spring-boot-starter-grpc/tree/master/src/test/java/com/anoyi](https://github.com/ChinaSilence/spring-boot-starter-grpc/tree/master/src/test/java/com/anoyi)
 
 ### 相关文档
 - [gRPC - Java QuickStart](https://grpc.io/docs/quickstart/java.html)
