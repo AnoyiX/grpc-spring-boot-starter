@@ -46,42 +46,34 @@ spring:
 ```
 
 4.4 远程服务调用
-> 远程服务调用需要知道远程服务的：地址、端口号、服务类、类方法、方法参数，该 starter 定义了 `GrpcRequest` 和 `GrpcResponse`。
+> 远程服务调用需要知道远程服务的：地址、端口号、服务类、类方法、方法参数，
+> 该 starter 定义了 `GrpcRequest` 和 `GrpcResponse`。
 ```
 public class GrpcRequest {
 
-    /**
-     * service 类名
-     */
+    // service 类名
     private String beanName;
 
-    /**
-     * service 方法名
-     */
+    // service 方法名
     private String methodName;
 
-    /**
-     * service 方法参数
-     */
+    // service 方法参数
     private Object[] args;
 
-    // 略 setter / getter...
 }
 ```
 ```
 public class GrpcResponse {
 
-    /**
-     * 响应状态：0 - 成功， 1 - 失败
-     */
+    // 响应状态：0 - 成功， 1 - 失败
     private int status;
 
-    /**
-     * 返回结果
-     */
+    // 用于错误描述
+    private String message;
+
+    // 返回结果
     private Object result;
 
-    // 略 setter / getter...
 }
 ```
 
@@ -95,7 +87,7 @@ public class HelloService{
     }
 
     public String say(String words){
-        return "Hello " + words;
+        return words;
     }
 
 }
