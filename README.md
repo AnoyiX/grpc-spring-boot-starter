@@ -70,12 +70,12 @@ public class GrpcRequest {
     /**
      * service 类名
      */
-    private String serviceBeanName;
+    private String beanName;
 
     /**
      * service 方法名
      */
-    private String serviceMethodName;
+    private String methodName;
 
     /**
      * service 方法参数
@@ -117,8 +117,26 @@ public class HelloService{
 
 }
 ```
+4.4.2 【注解方式】示例：客户端调用服务
+```
+import org.springframework.grpc.annotation.GrpcService;
 
-4.4.2 示例：客户端调用服务
+/**
+ * 使用 @GprcService 注解定义远程服务，server 指定远程服务名，必须在 application.yml 中定义才能使用
+ * 方法名 、参数 、 返回结果 必须与服务提供方一致
+ */
+@GrpcService(server = "localhost")
+public interface HelloService {
+
+    public String sayHello();
+
+    public String say(String words);
+
+}
+
+```
+
+4.4.3 【非注解方式】示例：客户端调用服务
 ```
     public void test(){
         // 构建请求体
@@ -153,7 +171,7 @@ public class HelloService{
     }
 ```
 
-4.4.3 示例：为方便调试，通过原生方式调用远程服务，无需依赖 Spring Boot
+4.4.4 【测试使用】示例：为方便调试，通过原生方式调用远程服务，无需依赖 Spring Boot 
 ```
 import com.alibaba.fastjson.JSON;
 import com.anoyi.rpc.CommonServiceGrpc;
@@ -196,12 +214,13 @@ public class GrpcClient {
 
     private void say(String words) {
         GrpcRequest grpcRequest = new GrpcRequest();
-        grpcRequest.setServiceBeanName("helloService");
-        grpcRequest.setServiceMethodName("say");
+        grpcRequest.setBeanName("helloService");
+        grpcRequest.setMethodName("say");
         Object[] params = {words};
         grpcRequest.setArgs(params);
         System.out.println("远程调用 " + grpcRequest.getServiceBeanName() + "." + grpcRequest.getServiceMethodName() + " ");
-        GrpcService.Request request = GrpcService.Request.newBuilder().setRequest(JSON.toJSONString(grpcRequest)).build();
+        byte[] bytes = ProtobufUtils.serialize(grpcRequest);
+        GrpcService.Request request = GrpcService.Request.newBuilder().setRequest(ByteString.copyFrom(bytes)).build();
         GrpcService.Response response = blockingStub.handle(request);
         System.out.println("远程调用结果: " + response.getReponse());
     }
@@ -212,3 +231,4 @@ public class GrpcClient {
 ### 相关文档
 - [gRPC - Java QuickStart](https://grpc.io/docs/quickstart/java.html)
 - [github : gRPC-java](https://github.com/grpc/grpc-java)
+- [github : spring-boot-starter-grpc](https://github.com/ChinaSilence/spring-boot-starter-grpc)
