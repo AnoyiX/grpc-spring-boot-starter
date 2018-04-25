@@ -5,28 +5,32 @@ public class GrpcRequest {
     /**
      * service 类名
      */
-    private String serviceBeanName;
+    private String beanName;
 
     /**
      * service 方法名
      */
-    private String serviceMethodName;
+    private String methodName;
 
     /**
      * service 方法参数
      */
     private Object[] args;
 
-    public String getServiceBeanName() {
-        return serviceBeanName;
+    public String getBeanName() {
+        return beanName;
     }
 
-    public String getServiceMethodName() {
-        return serviceMethodName;
+    public void setBeanName(String beanName) {
+        this.beanName = beanName;
     }
 
-    public void setServiceMethodName(String serviceMethodName) {
-        this.serviceMethodName = serviceMethodName;
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
     }
 
     public Object[] getArgs() {
@@ -37,7 +41,4 @@ public class GrpcRequest {
         this.args = args;
     }
 
-    public void setServiceBeanName(String serviceBeanName) {
-        this.serviceBeanName = serviceBeanName;
-    }
 }

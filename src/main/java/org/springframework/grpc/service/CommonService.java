@@ -1,11 +1,12 @@
 package org.springframework.grpc.service;
 
-import com.alibaba.fastjson.JSON;
 import com.anoyi.rpc.CommonServiceGrpc;
 import com.anoyi.rpc.GrpcService;
+import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.grpc.constant.GrpcResponseStatus;
+import org.springframework.grpc.util.ProtobufUtils;
 
 import java.lang.reflect.Method;
 import java.util.logging.Logger;
@@ -22,10 +23,9 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
 
     @Override
     public void handle(GrpcService.Request request, StreamObserver<GrpcService.Response> responseObserver) {
-        log.info("gRPC request: " + request);
-        String req = request.getRequest();
-        GrpcRequest grpcRequest = JSON.parseObject(req, GrpcRequest.class);
-        Object bean = applicationContext.getBeanFactory().getBean(grpcRequest.getServiceBeanName());
+        ByteString req = request.getRequest();
+        GrpcRequest grpcRequest = ProtobufUtils.deserialize(req.toByteArray(), GrpcRequest.class);
+        Object bean = applicationContext.getBeanFactory().getBean(grpcRequest.getBeanName());
         GrpcResponse response = new GrpcResponse();
         try {
             Object[] args = grpcRequest.getArgs();
@@ -35,10 +35,10 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
                 for (int i = 0, j = args.length; i < j; i++) {
                     argsClass[i] = args[i].getClass();
                 }
-                Method method = bean.getClass().getDeclaredMethod(grpcRequest.getServiceMethodName(), argsClass);
+                Method method = bean.getClass().getDeclaredMethod(grpcRequest.getMethodName(), argsClass);
                 result = method.invoke(bean, args);
             }else {
-                Method method = bean.getClass().getDeclaredMethod(grpcRequest.getServiceMethodName());
+                Method method = bean.getClass().getDeclaredMethod(grpcRequest.getMethodName());
                 result = method.invoke(bean);
             }
             response.setStatus(GrpcResponseStatus.SUCCESS.getCode());
@@ -48,7 +48,8 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
             e.printStackTrace();
             response.setStatus(GrpcResponseStatus.ERROR.getCode());
         }
-        GrpcService.Response grpcResponse = GrpcService.Response.newBuilder().setReponse(JSON.toJSONString(response)).build();
+        ByteString bytes = ByteString.copyFrom(ProtobufUtils.serialize(response));
+        GrpcService.Response grpcResponse = GrpcService.Response.newBuilder().setReponse(bytes).build();
         responseObserver.onNext(grpcResponse);
         responseObserver.onCompleted();
     }

@@ -12,10 +12,10 @@ service CommonService {
 
 // 定义通用的 Grpc 请求体
 message Request {
-    string request = 1;
+    bytes request = 1;
 }
 
 // 定义通用的 Grpc 响应体
 message Response {
-    string reponse = 1;
+    bytes reponse = 1;
 }

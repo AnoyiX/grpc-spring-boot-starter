@@ -1,11 +1,12 @@
 package org.springframework.grpc;
 
-import com.alibaba.fastjson.JSON;
 import com.anoyi.rpc.CommonServiceGrpc;
 import com.anoyi.rpc.GrpcService;
+import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import org.springframework.grpc.service.GrpcRequest;
 import org.springframework.grpc.service.GrpcResponse;
+import org.springframework.grpc.util.ProtobufUtils;
 
 public class ServerContext {
 
@@ -19,9 +20,10 @@ public class ServerContext {
     }
 
     public GrpcResponse handle(GrpcRequest grpcRequest) throws Exception {
-        GrpcService.Request request = GrpcService.Request.newBuilder().setRequest(JSON.toJSONString(grpcRequest)).build();
-        String response = blockingStub.handle(request).getReponse();
-        return JSON.parseObject(response, GrpcResponse.class);
+        byte[] bytes = ProtobufUtils.serialize(grpcRequest);
+        GrpcService.Request request = GrpcService.Request.newBuilder().setRequest(ByteString.copyFrom(bytes)).build();
+        ByteString response = blockingStub.handle(request).getReponse();
+        return ProtobufUtils.deserialize(response.toByteArray(), GrpcResponse.class);
     }
 
     public ManagedChannel getChannel() {
