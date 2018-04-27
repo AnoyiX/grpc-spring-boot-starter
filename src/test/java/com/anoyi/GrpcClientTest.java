@@ -24,8 +24,8 @@ public class GrpcClientTest {
             testNoArgs(blockingStub);
 
             // 测试有参函数
-//            Object[] args = {"Hello world!"};
-//            testArgs(blockingStub, args);
+//            Object[] requestArgs = {"Hello world!"};
+//            testArgs(blockingStub, requestArgs);
 
             // 性能测试
 //            testPerformance(blockingStub);
