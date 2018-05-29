@@ -12,9 +12,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface GrpcService {
 
     // remote server hostname
-    String server() default "";
+    String server() default "127.0.0.1";
 
     // @Service annotated bean's name
-    String name() default  "";
+    String bean() default  "";
 
 }

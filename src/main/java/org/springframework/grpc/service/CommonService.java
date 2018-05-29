@@ -5,12 +5,13 @@ import com.anoyi.rpc.GrpcService;
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.cglib.reflect.FastClass;
+import org.springframework.cglib.reflect.FastMethod;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.grpc.util.ProtobufUtils;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -36,39 +37,14 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
         if (bean != null) {
             String methodName = grpcRequest.getMethodName();
             Object[] args = grpcRequest.getArgs();
-            Object result;
-            if (args != null) {
-                Class[] argsClass = new Class[args.length];
-                for (int i = 0, j = args.length; i < j; i++) {
-                    argsClass[i] = args[i].getClass();
-                }
-                try {
-                    Method method = bean.getClass().getDeclaredMethod(methodName, argsClass);
-                    try {
-                        result = method.invoke(bean, args);
-                        response.success(result);
-                    } catch (IllegalAccessException e) {
-                        response.error("Cannot access method '" + methodName + "'.");
-                    } catch (InvocationTargetException e) {
-                        response.error("InvocationTargetException : " + e.getMessage());
-                    }
-                } catch (NoSuchMethodException e) {
-                    response.error("Service method '" + methodName + "' not found.");
-                }
-            } else {
-                try {
-                    Method method = bean.getClass().getDeclaredMethod(grpcRequest.getMethodName());
-                    try {
-                        result = method.invoke(bean);
-                        response.success(result);
-                    } catch (IllegalAccessException e) {
-                        response.error("Cannot access method '" + methodName + "'.");
-                    } catch (InvocationTargetException e) {
-                        response.error("InvocationTargetException : " + e.getMessage());
-                    }
-                } catch (NoSuchMethodException e) {
-                    response.error("Service method '" + methodName + "' not found.");
-                }
+            FastClass serviceFastClass = FastClass.create(bean.getClass());
+            Class<?>[] argTypes = getMethodParameterTypes(args);
+            FastMethod serviceFastMethod = serviceFastClass.getMethod(methodName, argTypes);
+            try {
+                Object result = serviceFastMethod.invoke(bean, args);
+                response.success(result);
+            } catch (InvocationTargetException e) {
+                response.error("InvocationTargetException : " + e.getMessage());
             }
         } else {
             response.error("Service bean '" + beanName + "' not found.");
@@ -80,7 +56,7 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
     }
 
     /**
-     * Get Service Bean
+     * Get service bean
      */
     private Object getBean(String beanName) throws NoSuchBeanDefinitionException {
         if (serviceBeanMap.containsKey(beanName)) {
@@ -100,6 +76,21 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
                     return bean;
                 }
             }
+        }
+        return null;
+    }
+
+    /**
+     * Get service method parameterTypes
+     */
+    private Class<?>[] getMethodParameterTypes(Object[] args){
+        if (args != null){
+            Class<?>[] types = new Class[args.length];
+            for (int i = 0; i < args.length; i++) {
+                Class<?> type = args[i].getClass();
+                types[i] = type;
+            }
+            return types;
         }
         return null;
     }

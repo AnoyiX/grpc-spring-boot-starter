@@ -18,7 +18,7 @@ public class GrpcClient {
         if (!CollectionUtils.isEmpty(remoteServers)){
             for (RemoteServer server : remoteServers) {
                 ManagedChannel channel = ManagedChannelBuilder.forAddress(server.getHost(), server.getPort()).usePlaintext().build();
-                serverMap.put(server.getHost(), new ServerContext(channel));
+                serverMap.put(server.getServer(), new ServerContext(channel));
             }
         }
     }

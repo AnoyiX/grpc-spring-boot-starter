@@ -15,7 +15,7 @@ mvn install
 <dependency>
     <groupId>com.anoyi</groupId>
     <artifactId>spring-boot-starter-grpc</artifactId>
-    <version>1.0.0.RELEASE</version>
+    <version>1.0.1.RELEASE</version>
 </dependency>
 ```
 
@@ -34,14 +34,16 @@ spring:
     port: 6565
 ```
 
-4.3 示例：gRPC 客户端，在 `application.yml` 中添加配置
+4.3 示例：gRPC 客户端，在 `application.yml` 中添加配置，`server` 属性在每个服务中唯一
 ```
 spring:
   grpc:
     remote-servers:
-      - host: localhost
+      - server: user
+        host: localhost
         port: 6565
-      - host: 192.168.0.3
+      - server: pay
+        host: 192.168.0.3
         port: 6565
 ```
 

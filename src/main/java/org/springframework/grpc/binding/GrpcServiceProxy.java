@@ -23,7 +23,7 @@ public class GrpcServiceProxy<T> implements InvocationHandler {
         String server = annotation.server();
         GrpcRequest request = new GrpcRequest();
         String className = grpcService.getSimpleName();
-        String beanName = annotation.name();
+        String beanName = annotation.bean();
         if (StringUtils.isEmpty(beanName)){
             beanName = Character.toLowerCase(className.charAt(0)) + className.substring(1);
         }

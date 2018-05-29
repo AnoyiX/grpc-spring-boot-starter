@@ -5,11 +5,22 @@ package org.springframework.grpc;
  */
 public class RemoteServer {
 
+    // 服务名
+    private String server;
+
     // 主机名
     private String host;
 
     // 端口号
     private int port;
+
+    public String getServer() {
+        return server;
+    }
+
+    public void setServer(String server) {
+        this.server = server;
+    }
 
     public String getHost() {
         return host;
