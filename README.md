@@ -101,10 +101,10 @@ import org.springframework.grpc.annotation.GrpcService;
 /**
  * 使用 @GprcService 注解定义远程服务，server 指定远程服务名，必须在 application.yml 中定义才能使用，
  * 方法名 、参数 、 返回结果 必须与服务提供方一致，
- * 除了 server 属性，还有 name 属性，name 属性可以指定远程服务的 beanName，
+ * 除了 server 属性，还有 bean 属性，bean 属性可以指定远程服务的 beanName，
  * 默认情况下，远程 beanName 会自动匹配，例如： @Service 注解 HelloService 类，或者 @Service 注解 HelloServiceImpl 类，都能正常获取到 Bean
  */
-@GrpcService(server = "localhost")
+@GrpcService(server = "user")
 public interface HelloService {
 
     public String sayHello();
