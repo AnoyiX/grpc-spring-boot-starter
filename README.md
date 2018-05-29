@@ -48,36 +48,8 @@ spring:
 ```
 
 4.4 远程服务调用
-> 远程服务调用需要知道远程服务的：地址、端口号、服务类、类方法、方法参数，
-> 该 starter 定义了 `GrpcRequest` 和 `GrpcResponse`。
-```
-public class GrpcRequest {
 
-    // service 类名
-    private String beanName;
-
-    // service 方法名
-    private String methodName;
-
-    // service 方法参数
-    private Object[] args;
-
-}
-```
-```
-public class GrpcResponse {
-
-    // 响应状态：0 - 成功， 1 - 失败
-    private int status;
-
-    // 用于错误描述
-    private String message;
-
-    // 返回结果
-    private Object result;
-
-}
-```
+服务提供方的 Service 层开发与普通 Spring Boot 应用无异，服务调用方可以使用注解形式和非注解形式来调用服务。
 
 4.4.1 示例：服务端提供服务，与单体 Spring Boot 无差别，即单体 Spring Boot 应用可以无缝集成
 ```
