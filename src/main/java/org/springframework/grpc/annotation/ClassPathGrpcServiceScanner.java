@@ -6,6 +6,10 @@ import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.lang.annotation.Annotation;
 import java.util.Set;
@@ -25,6 +29,10 @@ public class ClassPathGrpcServiceScanner extends ClassPathBeanDefinitionScanner 
 
     public void registerFilters() {
         addIncludeFilter(new AnnotationTypeFilter(this.annotationClass));
+        addExcludeFilter(new AnnotationTypeFilter(Service.class));
+        addExcludeFilter(new AnnotationTypeFilter(Component.class));
+        addExcludeFilter(new AnnotationTypeFilter(Repository.class));
+        addExcludeFilter(new AnnotationTypeFilter(Controller.class));
     }
 
     @Override
