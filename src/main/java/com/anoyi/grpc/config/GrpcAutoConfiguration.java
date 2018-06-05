@@ -96,27 +96,24 @@ public class GrpcAutoConfiguration {
             scanner.addIncludeFilter(new AnnotationTypeFilter(GrpcService.class));
 
             Set<BeanDefinition> beanDefinitions = scanPackages(scanner);
-            try {
-                for (BeanDefinition beanDefinition : beanDefinitions) {
-                    String className = beanDefinition.getBeanClassName();
-                    if (StringUtils.isEmpty(className)) {
-                        continue;
-                    }
-                    try {
-                        // 创建代理类
-                        Class<?> target = Class.forName(className);
-                        InvocationHandler invocationHandler = new GrpcServiceProxy<>(target);
-                        Object proxy = Proxy.newProxyInstance(GrpcService.class.getClassLoader(), new Class[]{target}, invocationHandler);
 
-                        // 注册到 Spring 容器
-                        String beanName = ClassNameUtils.beanName(className);
-                        ((DefaultListableBeanFactory) this.beanFactory).registerSingleton(beanName, proxy);
-                    } catch (ClassNotFoundException e) {
-                        log.warning("class not found : " + className);
-                    }
+            for (BeanDefinition beanDefinition : beanDefinitions) {
+                String className = beanDefinition.getBeanClassName();
+                if (StringUtils.isEmpty(className)) {
+                    continue;
                 }
-            } catch (IllegalStateException ex) {
-                log.warning("Could not determine auto-configuration package, automatic mapper scanning disabled.");
+                try {
+                    // 创建代理类
+                    Class<?> target = Class.forName(className);
+                    InvocationHandler invocationHandler = new GrpcServiceProxy<>(target);
+                    Object proxy = Proxy.newProxyInstance(GrpcService.class.getClassLoader(), new Class[]{target}, invocationHandler);
+
+                    // 注册到 Spring 容器
+                    String beanName = ClassNameUtils.beanName(className);
+                    ((DefaultListableBeanFactory) this.beanFactory).registerSingleton(beanName, proxy);
+                } catch (ClassNotFoundException e) {
+                    log.warning("class not found : " + className);
+                }
             }
         }
 
