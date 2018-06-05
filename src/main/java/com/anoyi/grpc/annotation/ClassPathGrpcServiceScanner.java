@@ -1,4 +1,4 @@
-package org.springframework.grpc.annotation;
+package com.anoyi.grpc.annotation;
 
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
+/**
+ * Scan class with @GrpcService
+ */
 public class ClassPathGrpcServiceScanner extends ClassPathBeanDefinitionScanner {
 
     private Class<? extends Annotation> annotationClass;
@@ -27,6 +30,9 @@ public class ClassPathGrpcServiceScanner extends ClassPathBeanDefinitionScanner 
         this.annotationClass = annotationClass;
     }
 
+    /**
+     * only scan @GrpcService
+     */
     public void registerFilters() {
         addIncludeFilter(new AnnotationTypeFilter(this.annotationClass));
         addExcludeFilter(new AnnotationTypeFilter(Service.class));

@@ -1,8 +1,8 @@
-package org.springframework.grpc;
+package com.anoyi.grpc;
 
+import com.anoyi.grpc.config.GrpcProperties;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.springframework.grpc.config.GrpcProperties;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;

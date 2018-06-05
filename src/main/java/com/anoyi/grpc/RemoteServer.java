@@ -1,4 +1,4 @@
-package org.springframework.grpc;
+package com.anoyi.grpc;
 
 /**
  * 远程服务

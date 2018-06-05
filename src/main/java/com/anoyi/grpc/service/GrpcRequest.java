@@ -1,4 +1,4 @@
-package org.springframework.grpc.service;
+package com.anoyi.grpc.service;
 
 public class GrpcRequest {
 

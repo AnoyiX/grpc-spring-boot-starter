@@ -1,10 +1,10 @@
-package org.springframework.grpc.binding;
+package com.anoyi.grpc.binding;
 
 
+import com.anoyi.grpc.service.GrpcRequest;
 import org.springframework.cglib.proxy.InvocationHandler;
-import org.springframework.grpc.GrpcClient;
-import org.springframework.grpc.annotation.GrpcService;
-import org.springframework.grpc.service.GrpcRequest;
+import com.anoyi.grpc.GrpcClient;
+import com.anoyi.grpc.annotation.GrpcService;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;

@@ -2,10 +2,17 @@
   "hints": [],
   "groups": [
     {
-      "sourceType": "org.springframework.grpc.config.GrpcProperties",
+      "sourceType": "com.anoyi.grpc.config.GrpcProperties",
       "name": "spring.grpc",
-      "type": "org.springframework.grpc.config.GrpcProperties"
+      "type": "com.anoyi.grpc.config.GrpcProperties"
     }
   ],
-  "properties": []
+  "properties": [
+    {
+      "name": "spring.grpc.port",
+      "type": "java.lang.Integer",
+      "sourceType": "com.anoyi.grpc.config.GrpcProperties",
+      "defaultValue": 6565
+    }
+  ]
 }

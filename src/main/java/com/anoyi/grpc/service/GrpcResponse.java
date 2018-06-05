@@ -1,6 +1,6 @@
-package org.springframework.grpc.service;
+package com.anoyi.grpc.service;
 
-import org.springframework.grpc.constant.GrpcResponseStatus;
+import com.anoyi.grpc.constant.GrpcResponseStatus;
 
 public class GrpcResponse {
 

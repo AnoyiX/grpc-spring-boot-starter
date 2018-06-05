@@ -5,9 +5,9 @@ import com.anoyi.rpc.GrpcService;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.springframework.grpc.service.GrpcRequest;
-import org.springframework.grpc.service.GrpcResponse;
-import org.springframework.grpc.util.ProtobufUtils;
+import com.anoyi.grpc.service.GrpcRequest;
+import com.anoyi.grpc.service.GrpcResponse;
+import com.anoyi.grpc.util.ProtobufUtils;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

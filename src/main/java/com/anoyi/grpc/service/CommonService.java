@@ -1,4 +1,4 @@
-package org.springframework.grpc.service;
+package com.anoyi.grpc.service;
 
 import com.anoyi.rpc.CommonServiceGrpc;
 import com.anoyi.rpc.GrpcService;
@@ -8,7 +8,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.cglib.reflect.FastClass;
 import org.springframework.cglib.reflect.FastMethod;
 import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.grpc.util.ProtobufUtils;
+import com.anoyi.grpc.util.ProtobufUtils;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;

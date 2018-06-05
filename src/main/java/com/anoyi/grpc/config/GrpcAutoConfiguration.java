@@ -1,5 +1,10 @@
-package org.springframework.grpc.config;
+package com.anoyi.grpc.config;
 
+import com.anoyi.grpc.GrpcClient;
+import com.anoyi.grpc.annotation.ClassPathGrpcServiceScanner;
+import com.anoyi.grpc.annotation.GrpcService;
+import com.anoyi.grpc.binding.GrpcServiceProxy;
+import com.anoyi.grpc.service.CommonService;
 import io.grpc.ServerBuilder;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -18,12 +23,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.grpc.GrpcClient;
-import org.springframework.grpc.GrpcServerRunner;
-import org.springframework.grpc.annotation.ClassPathGrpcServiceScanner;
-import org.springframework.grpc.annotation.GrpcService;
-import org.springframework.grpc.binding.GrpcServiceProxy;
-import org.springframework.grpc.service.CommonService;
+import com.anoyi.grpc.GrpcServerRunner;
 import org.springframework.util.StringUtils;
 
 import java.util.HashSet;

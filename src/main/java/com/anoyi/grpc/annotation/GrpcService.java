@@ -1,4 +1,4 @@
-package org.springframework.grpc.annotation;
+package com.anoyi.grpc.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
@@ -11,10 +11,15 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface GrpcService {
 
-    // remote server hostname
-    String server() default "127.0.0.1";
+    /**
+     * remote server name. Required.
+     */
+    String server() default "";
 
-    // @Service annotated bean's name
+    /**
+     * SpringContext beans name.
+     * If not fill in, will match through Class name.
+     */
     String bean() default  "";
 
 }

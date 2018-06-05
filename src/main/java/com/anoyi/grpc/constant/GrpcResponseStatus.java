@@ -1,4 +1,4 @@
-package org.springframework.grpc.constant;
+package com.anoyi.grpc.constant;
 
 public enum GrpcResponseStatus {
 

@@ -1,10 +1,10 @@
-package org.springframework.grpc;
+package com.anoyi.grpc;
 
+import com.anoyi.grpc.service.CommonService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.grpc.service.CommonService;
 
 import java.util.Optional;
 import java.util.logging.Logger;
