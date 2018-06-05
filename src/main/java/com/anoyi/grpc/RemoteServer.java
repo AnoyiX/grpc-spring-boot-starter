@@ -5,13 +5,19 @@ package com.anoyi.grpc;
  */
 public class RemoteServer {
 
-    // 服务名
+    /**
+     * 服务名
+     */
     private String server;
 
-    // 主机名
+    /**
+     * 主机地址
+     */
     private String host;
 
-    // 端口号
+    /**
+     * 服务端口号
+     */
     private int port;
 
     public String getServer() {

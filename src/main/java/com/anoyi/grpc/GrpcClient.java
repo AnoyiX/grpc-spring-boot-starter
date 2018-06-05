@@ -25,11 +25,9 @@ public class GrpcClient {
 
     /**
      * 连接远程服务
-     * @param host 远程服务的 hostname
-     * @return gRPC channel
      */
-    public static ServerContext connect(String host){
-        return serverMap.get(host);
+    public static ServerContext connect(String serverName){
+        return serverMap.get(serverName);
     }
 
 }

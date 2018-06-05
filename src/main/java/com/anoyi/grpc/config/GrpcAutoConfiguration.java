@@ -1,10 +1,11 @@
 package com.anoyi.grpc.config;
 
 import com.anoyi.grpc.GrpcClient;
-import com.anoyi.grpc.annotation.ClassPathGrpcServiceScanner;
+import com.anoyi.grpc.GrpcServerRunner;
 import com.anoyi.grpc.annotation.GrpcService;
 import com.anoyi.grpc.binding.GrpcServiceProxy;
 import com.anoyi.grpc.service.CommonService;
+import com.anoyi.grpc.util.ClassNameUtils;
 import io.grpc.ServerBuilder;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -23,7 +24,8 @@ import org.springframework.context.annotation.*;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
-import com.anoyi.grpc.GrpcServerRunner;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.HashSet;
@@ -68,6 +70,9 @@ public class GrpcAutoConfiguration {
 
     }
 
+    /**
+     * 扫描 @GrpcService 注解的接口，生成动态代理类，注入的 Spring 容器
+     */
     public static class AutoConfiguredGrpcServiceScannerRegistrar implements BeanFactoryAware, ImportBeanDefinitionRegistrar, ResourceLoaderAware {
 
         private BeanFactory beanFactory;
@@ -86,42 +91,64 @@ public class GrpcAutoConfiguration {
 
         @Override
         public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-            ClassPathGrpcServiceScanner scanner = new ClassPathGrpcServiceScanner(registry);
-            try {
-                if (this.resourceLoader != null) {
-                    scanner.setResourceLoader(this.resourceLoader);
-                }
-                List<String> packages = AutoConfigurationPackages.get(this.beanFactory);
-                scanner.setAnnotationClass(GrpcService.class);
-                scanner.registerFilters();
-                Set<BeanDefinition> beanDefinitions = new HashSet<>();
-                packages.forEach(pack ->
-                    beanDefinitions.addAll(scanner.findCandidateComponents(pack))
-                );
+            ClassPathBeanDefinitionScanner scanner = new ClassPathGrpcServiceScanner(registry);
+            scanner.setResourceLoader(this.resourceLoader);
+            scanner.addIncludeFilter(new AnnotationTypeFilter(GrpcService.class));
 
+            Set<BeanDefinition> beanDefinitions = scanPackages(scanner);
+            try {
                 for (BeanDefinition beanDefinition : beanDefinitions) {
-                    if (beanDefinition instanceof AnnotatedBeanDefinition) {
-                        String className = beanDefinition.getBeanClassName();
-                        if (StringUtils.isEmpty(className)){
-                            continue;
-                        }
-                        try {
-                            Class<?> target = Class.forName(className);
-                            InvocationHandler invocationHandler = new GrpcServiceProxy<>(target);
-                            String[] path = className.split("\\.");
-                            String beanName = path[path.length - 1];
-                            beanName = Character.toLowerCase(beanName.charAt(0)) + beanName.substring(1);
-                            Object proxy = Proxy.newProxyInstance(GrpcService.class.getClassLoader(), new Class[]{target}, invocationHandler);
-                            ((DefaultListableBeanFactory) this.beanFactory).registerSingleton(beanName, proxy);
-                        } catch (ClassNotFoundException e) {
-                            e.printStackTrace();
-                        }
+                    String className = beanDefinition.getBeanClassName();
+                    if (StringUtils.isEmpty(className)) {
+                        continue;
+                    }
+                    try {
+                        // 创建代理类
+                        Class<?> target = Class.forName(className);
+                        InvocationHandler invocationHandler = new GrpcServiceProxy<>(target);
+                        Object proxy = Proxy.newProxyInstance(GrpcService.class.getClassLoader(), new Class[]{target}, invocationHandler);
+
+                        // 注册到 Spring 容器
+                        String beanName = ClassNameUtils.beanName(className);
+                        ((DefaultListableBeanFactory) this.beanFactory).registerSingleton(beanName, proxy);
+                    } catch (ClassNotFoundException e) {
+                        log.warning("class not found : " + className);
                     }
                 }
             } catch (IllegalStateException ex) {
                 log.warning("Could not determine auto-configuration package, automatic mapper scanning disabled.");
             }
         }
+
+        /**
+         * 包扫描
+         */
+        private Set<BeanDefinition> scanPackages(ClassPathBeanDefinitionScanner scanner) {
+            List<String> packages = AutoConfigurationPackages.get(beanFactory);
+            Set<BeanDefinition> beanDefinitions = new HashSet<>();
+            if (CollectionUtils.isEmpty(packages)) {
+                return beanDefinitions;
+            }
+            packages.forEach(pack -> beanDefinitions.addAll(scanner.findCandidateComponents(pack)));
+            return beanDefinitions;
+        }
+
+        protected class ClassPathGrpcServiceScanner extends ClassPathBeanDefinitionScanner {
+
+            ClassPathGrpcServiceScanner(BeanDefinitionRegistry registry) {
+                super(registry, false);
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
+                return beanDefinition.getMetadata().isInterface() && beanDefinition.getMetadata().isIndependent();
+            }
+
+        }
+
     }
 
 }

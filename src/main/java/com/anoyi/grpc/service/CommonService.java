@@ -56,7 +56,7 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
     }
 
     /**
-     * Get service bean
+     * 获取 Service Bean
      */
     private Object getBean(String beanName) throws NoSuchBeanDefinitionException {
         if (serviceBeanMap.containsKey(beanName)) {
@@ -67,7 +67,7 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
             serviceBeanMap.put(beanName, bean);
             return bean;
         } catch (NoSuchBeanDefinitionException e) {
-            // match bean
+            // 通过前缀匹配 Bean
             String[] serviceBeanNames = applicationContext.getBeanNamesForAnnotation(Service.class);
             for (String serviceBeanName : serviceBeanNames) {
                 if (serviceBeanName.contains(beanName)) {
@@ -81,7 +81,7 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
     }
 
     /**
-     * Get service method parameterTypes
+     * 获取对象数组的 Class 类型
      */
     private Class<?>[] getMethodParameterTypes(Object[] args){
         if (args != null){

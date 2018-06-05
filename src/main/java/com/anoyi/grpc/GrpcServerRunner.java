@@ -9,6 +9,9 @@ import org.springframework.boot.CommandLineRunner;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+/**
+ * gRPC Server 启动器
+ */
 public class GrpcServerRunner implements CommandLineRunner, DisposableBean {
 
     private static final Logger log = Logger.getLogger(GrpcServerRunner.class.getName());

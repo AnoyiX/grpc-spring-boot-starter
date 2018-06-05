@@ -14,18 +14,24 @@ public class ServerContext {
 
     private CommonServiceGrpc.CommonServiceBlockingStub blockingStub;
 
-    ServerContext(ManagedChannel channel){
+    ServerContext(ManagedChannel channel) {
         this.channel = channel;
         blockingStub = CommonServiceGrpc.newBlockingStub(channel);
     }
 
-    public GrpcResponse handle(GrpcRequest grpcRequest) throws Exception {
+    /**
+     * 处理 gRPC 请求
+     */
+    public GrpcResponse handle(GrpcRequest grpcRequest) {
         byte[] bytes = ProtobufUtils.serialize(grpcRequest);
         GrpcService.Request request = GrpcService.Request.newBuilder().setRequest(ByteString.copyFrom(bytes)).build();
         ByteString response = blockingStub.handle(request).getReponse();
         return ProtobufUtils.deserialize(response.toByteArray(), GrpcResponse.class);
     }
 
+    /**
+     * 获取 Channel
+     */
     public ManagedChannel getChannel() {
         return channel;
     }
