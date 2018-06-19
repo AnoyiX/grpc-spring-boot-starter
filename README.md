@@ -122,6 +122,7 @@ spring:
 
 3.2 配置 `@GrpcService` 包扫描路径，示例：
 ```
+@SpringBootApplication
 @GrpcServiceScan(basePackages = {"com.anoyi.grpc.facade"})
 public class Application {
 
