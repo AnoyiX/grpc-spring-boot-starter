@@ -111,4 +111,12 @@
         </plugins>
     </build>
 
+    <distributionManagement>
+        <repository>
+            <id>central</id>
+            <name>Tezign-Artifactory-releases</name>
+            <url>https://tech-mvn.tezign.com/artifactory/libs-release</url>
+        </repository>
+    </distributionManagement>
+
 </project>

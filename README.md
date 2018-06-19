@@ -1,32 +1,75 @@
-### Spring Boot 快速集成 gRPC
+### Quick Start
 
 **1、获取 spring-boot-starter-grpc 源码**
 ```
 git clone https://github.com/ChinaSilence/spring-boot-starter-grpc.git
 ```
 
-**2、安装到本地 Maven 仓库【重要，否则代码报错】**
+**2、安装到本地 Maven 仓库**
 ```
-mvn install
+# spring-boot-starter-grpc/spring-boot-starter-grpc 目录下执行
+mvn clean install
 ```
 
-**3、在 Spring Boot 工程中添加依赖**
+**3、安装 服务提供方 和 服务调用方 共用的接口模块**
+```
+# spring-boot-starter-grpc/samples-facade 目录下执行
+mvn clean install
+```
+
+**4、启动 服务提供方**
+```
+# spring-boot-starter-grpc/samples-server 目录下执行
+mvn spring-boot:run
+```
+
+**5、启动 服务调用方**
+```
+# 新开终端窗口，在 spring-boot-starter-grpc/samples-client 目录下执行
+mvn spring-boot:run
+```
+
+**6、测试远程调用**
+```
+curl http://localhost:8080/user/findAll
+```
+
+### How To Use
+
+所有用到 spring-boot-starter-grpc 的模块都需要添加依赖：
 ```
 <dependency>
     <groupId>com.anoyi</groupId>
     <artifactId>spring-boot-starter-grpc</artifactId>
-    <version>1.0.1.RELEASE</version>
+    <version>1.0.2.RELEASE</version>
 </dependency>
 ```
 
-**4、gRPC 使用说明**
+**1、共用 interface 模块(非必须)**
 
-4.1 参数配置说明
-- spring.grpc.enable 是否启用 gRPC 服务端，默认 `false`
-- spring.grpc.port 监听的端口号
-- spring.grpc.remote-servers 供客户端调用的服务端列表
+1.1 示例接口
+```
+@GrpcService(server = "user")
+public interface UserService {
 
-4.2 示例：gRPC 服务端，在 `application.yml` 中添加配置
+    void insert(UserEntity userEntity);
+
+    void deleteById(Long id);
+
+    void update(UserEntity userEntity);
+
+    UserEntity findById(Long id);
+
+    List<UserEntity> findAll();
+
+}
+```
+> `server` 字段必填，对应 服务调用方 配置文件中的 `spring.grpc.remote-servers.server` 值
+
+
+**2、服务提供方使用指南**
+
+2.1 在 application.yml 中添加如下配置：
 ```
 spring:
   grpc:
@@ -34,60 +77,86 @@ spring:
     port: 6565
 ```
 
-4.3 示例：gRPC 客户端，在 `application.yml` 中添加配置，`server` 属性在每个服务中唯一
+2.2 添加 interface 模块的依赖，并实现所有接口的所有方法, 示例：
+
+```
+@Service
+public class UserServiceImpl implements UserService {
+
+    /**
+     * 模拟数据库存储用户信息
+     */
+    private Map<Long, UserEntity> userMap = new ConcurrentHashMap<>();
+
+    @Override
+    public void insert(UserEntity userEntity) {
+        if (userEntity == null){
+            log.warn("insert user fail, userEntity is null!");
+            return ;
+        }
+        userMap.putIfAbsent(userEntity.getId(), userEntity);
+    }
+
+    // 其他省略
+
+}
+
+```
+> 接口实现类的命名的前缀必须与接口名相同
+
+**3、服务调用方使用指南**
+
+3.1 在 application.yml 中添加如下配置：
 ```
 spring:
   grpc:
     remote-servers:
       - server: user
-        host: localhost
+        host: 127.0.0.1
         port: 6565
       - server: pay
         host: 192.168.0.3
         port: 6565
 ```
+>  注意：`server` 属性在每个服务中唯一，`host` 和 `port` 为服务提供方提供的通信端口
 
-4.4 远程服务调用
-
-服务提供方的 Service 层开发与普通 Spring Boot 应用无异，服务调用方可以使用注解形式和非注解形式来调用服务。
-
-4.4.1 示例：服务端提供服务，与单体 Spring Boot 无差别，即单体 Spring Boot 应用可以无缝集成
+3.2 配置 `@GrpcService` 包扫描路径，示例：
 ```
-@Service
-public class HelloService{
+@GrpcServiceScan(basePackages = {"com.anoyi.grpc.facade"})
+public class Application {
 
-    public String sayHello(){
-        return "Hello";
-    }
-
-    public String say(String words){
-        return words;
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
     }
 
 }
 ```
-4.4.2 【注解方式】示例：客户端调用服务
+> 提示，由于使用了共用的接口工程，spring boot 无法直接扫描当前工程外部的信息，所以需要手动指定 @GrpcService 的包扫描路径，如果 @GrpcService 定义在当前工程内部，则无需配置 @GrpcService
+
+3.3 添加 interface 模块的依赖，在任何 spring boot component 类中使用 @Autowired 注解即可(或者通过构造器注入)，示例：
+
 ```
-import org.springframework.grpc.annotation.GrpcService;
+@RestController
+@RequestMapping("/user")
+public class UserController {
 
-/**
- * 使用 @GprcService 注解定义远程服务，server 指定远程服务名，必须在 application.yml 中定义才能使用，
- * 方法名 、参数 、 返回结果 必须与服务提供方一致，
- * 除了 server 属性，还有 bean 属性，bean 属性可以指定远程服务的 beanName，
- * 默认情况下，远程 beanName 会自动匹配，例如： @Service 注解 HelloService 类，或者 @Service 注解 HelloServiceImpl 类，都能正常获取到 Bean
- */
-@GrpcService(server = "user")
-public interface HelloService {
+    @Autowired
+    private UserService userService;
 
-    public String sayHello();
+    @PostMapping("/add")
+    public UserEntity insertUser(@RequestBody UserEntity userEntity){
+        userService.insert(userEntity);
+        return userEntity;
+    }
 
-    public String say(String words);
+    // 省略其他
 
 }
 
 ```
 
-4.4.3 【非注解方式】示例：客户端调用服务
+### Other Info
+1、通过客户端直接调用远程服务
 ```
     public void test(){
         // 构建请求体
@@ -121,10 +190,6 @@ public interface HelloService {
         }
     }
 ```
-
-4.4.4 【测试使用】示例：为方便调试，通过原生方式调用远程服务，无需依赖 Spring Boot
-
-[https://github.com/ChinaSilence/spring-boot-starter-grpc/tree/master/src/test/java/com/anoyi](https://github.com/ChinaSilence/spring-boot-starter-grpc/tree/master/src/test/java/com/anoyi)
 
 ### 相关文档
 - [gRPC - Java QuickStart](https://grpc.io/docs/quickstart/java.html)

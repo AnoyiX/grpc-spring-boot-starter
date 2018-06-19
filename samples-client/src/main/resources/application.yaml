@@ -1,0 +1,8 @@
+server:
+  port: 8080
+spring:
+  grpc:
+    remote-servers:
+    - server: user
+      host: 127.0.0.1
+      port: 6565
