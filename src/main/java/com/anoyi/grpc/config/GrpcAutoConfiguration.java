@@ -3,6 +3,7 @@ package com.anoyi.grpc.config;
 import com.anoyi.grpc.GrpcClient;
 import com.anoyi.grpc.GrpcServerRunner;
 import com.anoyi.grpc.annotation.GrpcService;
+import com.anoyi.grpc.annotation.GrpcServiceScan;
 import com.anoyi.grpc.binding.GrpcServiceProxy;
 import com.anoyi.grpc.service.CommonService;
 import com.anoyi.grpc.util.ClassNameUtils;
@@ -20,7 +21,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cglib.proxy.InvocationHandler;
 import org.springframework.cglib.proxy.Proxy;
 import org.springframework.context.ResourceLoaderAware;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
@@ -28,9 +32,7 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 @Configuration
@@ -64,12 +66,6 @@ public class GrpcAutoConfiguration {
         return new GrpcClient(grpcProperties);
     }
 
-    @Configuration
-    @Import({AutoConfiguredGrpcServiceScannerRegistrar.class})
-    public static class GrpcServiceScannerAutoConfiguration {
-
-    }
-
     /**
      * 扫描 @GrpcService 注解的接口，生成动态代理类，注入的 Spring 容器
      */
@@ -95,7 +91,7 @@ public class GrpcAutoConfiguration {
             scanner.setResourceLoader(this.resourceLoader);
             scanner.addIncludeFilter(new AnnotationTypeFilter(GrpcService.class));
 
-            Set<BeanDefinition> beanDefinitions = scanPackages(scanner);
+            Set<BeanDefinition> beanDefinitions = scanPackages(importingClassMetadata, scanner);
 
             for (BeanDefinition beanDefinition : beanDefinitions) {
                 String className = beanDefinition.getBeanClassName();
@@ -120,8 +116,15 @@ public class GrpcAutoConfiguration {
         /**
          * 包扫描
          */
-        private Set<BeanDefinition> scanPackages(ClassPathBeanDefinitionScanner scanner) {
+        private Set<BeanDefinition> scanPackages(AnnotationMetadata importingClassMetadata, ClassPathBeanDefinitionScanner scanner) {
             List<String> packages = AutoConfigurationPackages.get(beanFactory);
+            Map<String, Object> annotationAttributes = importingClassMetadata.getAnnotationAttributes(GrpcServiceScan.class.getCanonicalName());
+            if (annotationAttributes != null) {
+                String[] basePackages = (String[]) annotationAttributes.get("basePackages");
+                if (basePackages.length > 0){
+                    packages.addAll(Arrays.asList(basePackages));
+                }
+            }
             Set<BeanDefinition> beanDefinitions = new HashSet<>();
             if (CollectionUtils.isEmpty(packages)) {
                 return beanDefinitions;
