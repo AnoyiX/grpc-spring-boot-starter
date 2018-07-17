@@ -112,6 +112,7 @@
         </plugins>
     </build>
 
+<<<<<<< HEAD
     <!--<distributionManagement>-->
         <!--<repository>-->
             <!--<id>central</id>-->
@@ -130,3 +131,6 @@
 
 
 </project>
+=======
+</project>
+>>>>>>> e935168c794cc9444078fa91e5f0132711e7e6f5
