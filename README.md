@@ -41,7 +41,7 @@ curl http://localhost:8080/user/findAll
 <dependency>
     <groupId>com.anoyi</groupId>
     <artifactId>spring-boot-starter-grpc</artifactId>
-    <version>1.0.2.RELEASE</version>
+    <version>1.1.0.RELEASE</version>
 </dependency>
 ```
 
