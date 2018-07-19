@@ -1,7 +1,9 @@
 package com.anoyi.grpc.binding;
 
 
+import com.anoyi.grpc.constant.GrpcResponseStatus;
 import com.anoyi.grpc.service.GrpcRequest;
+import com.anoyi.grpc.service.GrpcResponse;
 import org.springframework.cglib.proxy.InvocationHandler;
 import com.anoyi.grpc.GrpcClient;
 import com.anoyi.grpc.annotation.GrpcService;
@@ -18,19 +20,18 @@ public class GrpcServiceProxy<T> implements InvocationHandler {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable{
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         GrpcService annotation = grpcService.getAnnotation(GrpcService.class);
         String server = annotation.server();
         GrpcRequest request = new GrpcRequest();
-        String className = grpcService.getSimpleName();
-        String beanName = annotation.bean();
-        if (StringUtils.isEmpty(beanName)) {
-            beanName = Character.toLowerCase(className.charAt(0)) + className.substring(1);
-        }
-        request.setBeanName(beanName);
-        request.setMethodName(method.getName());
+        request.setClazz(grpcService);
+        request.setMethod(method);
         request.setArgs(args);
-        return GrpcClient.connect(server).handle(request).getResult();
+        GrpcResponse response = GrpcClient.connect(server).handle(request);
+        if (GrpcResponseStatus.ERROR.getCode() == response.getStatus()) {
+            throw new RuntimeException(response.getMessage());
+        }
+        return response.getResult();
     }
 
 }

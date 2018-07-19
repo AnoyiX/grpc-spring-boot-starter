@@ -1,36 +1,38 @@
 package com.anoyi.grpc.service;
 
+import java.lang.reflect.Method;
+
 public class GrpcRequest {
 
     /**
-     * service 类名
+     * 接口
      */
-    private String beanName;
+    private Class clazz;
 
     /**
-     * service 方法名
+     * 方法
      */
-    private String methodName;
+    private Method method;
 
     /**
      * service 方法参数
      */
     private Object[] args;
 
-    public String getBeanName() {
-        return beanName;
+    public Class getClazz() {
+        return clazz;
     }
 
-    public void setBeanName(String beanName) {
-        this.beanName = beanName;
+    public void setClazz(Class clazz) {
+        this.clazz = clazz;
     }
 
-    public String getMethodName() {
-        return methodName;
+    public Method getMethod() {
+        return method;
     }
 
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
+    public void setMethod(Method method) {
+        this.method = method;
     }
 
     public Object[] getArgs() {

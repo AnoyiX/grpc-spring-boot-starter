@@ -25,8 +25,9 @@ public class ServerContext {
     public GrpcResponse handle(GrpcRequest grpcRequest) {
         byte[] bytes = ProtobufUtils.serialize(grpcRequest);
         GrpcService.Request request = GrpcService.Request.newBuilder().setRequest(ByteString.copyFrom(bytes)).build();
-        ByteString response = blockingStub.handle(request).getReponse();
-        return ProtobufUtils.deserialize(response.toByteArray(), GrpcResponse.class);
+        GrpcService.Response response = blockingStub.handle(request);
+        ByteString responseBody = response.getReponse();
+        return ProtobufUtils.deserialize(responseBody.toByteArray(), GrpcResponse.class);
     }
 
     /**

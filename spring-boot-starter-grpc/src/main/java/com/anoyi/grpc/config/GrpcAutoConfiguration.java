@@ -16,17 +16,13 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cglib.proxy.InvocationHandler;
 import org.springframework.cglib.proxy.Proxy;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -67,11 +63,11 @@ public class GrpcAutoConfiguration {
         return new GrpcClient(grpcProperties);
     }
 
-    @Configuration
-    @Import({GrpcAutoConfiguration.AutoConfiguredGrpcServiceScannerRegistrar.class})
-    public class AutoConfiguredGrpcServiceScanner {
-
-    }
+//    @Configuration
+//    @Import({GrpcAutoConfiguration.AutoConfiguredGrpcServiceScannerRegistrar.class})
+//    public class AutoConfiguredGrpcServiceScanner {
+//
+//    }
 
     /**
      * 自动扫描 @GrpcService 注解的接口，生成动态代理类，注入的 Spring 容器

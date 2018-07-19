@@ -6,7 +6,7 @@
 
     <groupId>com.anoyi</groupId>
     <artifactId>spring-boot-starter-grpc</artifactId>
-    <version>1.1.0.RELEASE</version>
+    <version>1.1.1.RELEASE</version>
 
     <properties>
         <spring-boot.version>2.0.3.RELEASE</spring-boot.version>
@@ -112,25 +112,4 @@
         </plugins>
     </build>
 
-<<<<<<< HEAD
-    <!--<distributionManagement>-->
-        <!--<repository>-->
-            <!--<id>central</id>-->
-            <!--<name>Tezign-Artifactory-releases</name>-->
-            <!--<url>https://tech-mvn.tezign.com/artifactory/libs-release</url>-->
-        <!--</repository>-->
-    <!--</distributionManagement>-->
-
-    <!--<distributionManagement>-->
-        <!--<repository>-->
-            <!--<id>central</id>-->
-            <!--<name>Micro Artifactory-releases</name>-->
-            <!--<url>https://mvn.anoyi.com/artifactory/libs-release-local</url>-->
-        <!--</repository>-->
-    <!--</distributionManagement>-->
-
-
 </project>
-=======
-</project>
->>>>>>> e935168c794cc9444078fa91e5f0132711e7e6f5
