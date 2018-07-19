@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
-public class UserServiceImpl implements UserService {
+public class BaseUserServiceImpl implements UserService {
 
     /**
      * 模拟数据库存储用户信息
@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserEntity> findAll() {
-        log.info("find all users");
+        log.info("base find all users");
         Collection<UserEntity> values = userMap.values();
         if (values.isEmpty()){
             UserEntity userEntity = new UserEntity();
