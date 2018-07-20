@@ -41,11 +41,11 @@ curl http://localhost:8080/user/list
 <dependency>
     <groupId>com.anoyi</groupId>
     <artifactId>spring-boot-starter-grpc</artifactId>
-    <version>1.1.0.RELEASE</version>
+    <version>1.1.1.RELEASE</version>
 </dependency>
 ```
 
-**1、共用 interface 模块(非必须)**
+**1、共用 interface 模块**
 
 1.1 示例接口
 ```
@@ -156,41 +156,6 @@ public class UserController {
 
 ```
 
-### Other Info
-1、通过客户端直接调用远程服务
-```
-    public void test(){
-        // 构建请求体
-        GrpcRequest grpcRequest = new GrpcRequest();
-        grpcRequest.setServiceBeanName("helloService");
-
-        // 无参方法调用
-        grpcRequest.setServiceMethodName("sayHello");
-        try {
-            // 此处服务提供方需要在配置文件中定义，否则无法调用
-            GrpcResponse response = GrpcClient.connect("localhost").handle(grpcRequest);
-            if (response.getStatus() == GrpcResponseStatus.SUCCESS.getCode()){
-                System.out.println(response.getResult());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // 有参方法调用
-        grpcRequest.setServiceMethodName("say");
-        Object[] args = {"hello"};
-        grpcRequest.setArgs(args);
-        try {
-            // 此处服务提供方需要在配置文件中定义，否则无法调用
-            GrpcResponse response = GrpcClient.connect("localhost").handle(grpcRequest);
-            if (response.getStatus() == GrpcResponseStatus.SUCCESS.getCode()){
-                System.out.println(response.getResult());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-```
 
 ### 相关文档
 - [gRPC - Java QuickStart](https://grpc.io/docs/quickstart/java.html)
