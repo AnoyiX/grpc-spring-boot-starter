@@ -16,10 +16,4 @@ public @interface GrpcService {
      */
     String server() default "";
 
-    /**
-     * SpringContext beans name.
-     * If not fill in, will match through Class name.
-     */
-    String bean() default  "";
-
 }
