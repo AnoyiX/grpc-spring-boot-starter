@@ -41,7 +41,7 @@ curl http://localhost:8080/user/list
 <dependency>
     <groupId>com.anoyi</groupId>
     <artifactId>spring-boot-starter-grpc</artifactId>
-    <version>1.1.1.RELEASE</version>
+    <version>1.1.2.RELEASE</version>
 </dependency>
 ```
 
@@ -155,6 +155,32 @@ public class UserController {
 }
 
 ```
+
+**4、元数据 - headers & trailers**
+
+4.1 服务提供方配置，配置示例：
+```
+spring:
+  grpc:
+    enable: true
+    port: 6565
+    server-interceptor: ***.***.**ServerInterceptor  # class 类
+```
+
+4.2 服务提供方配置，配置示例：
+```
+spring:
+  grpc:
+    client-interceptor: ***.***.**ClientInterceptor  # class 类
+    remote-servers:
+    - server: user
+      host: 127.0.0.1
+      port: 6565
+```
+
+4.3 官方示例
+
+[https://github.com/grpc/grpc-java/tree/master/examples/src/main/java/io/grpc/examples/header](https://github.com/grpc/grpc-java/tree/master/examples/src/main/java/io/grpc/examples/header)
 
 
 ### 相关文档
