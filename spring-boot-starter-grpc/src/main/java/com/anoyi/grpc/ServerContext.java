@@ -6,15 +6,15 @@ import com.anoyi.grpc.util.ProtobufUtils;
 import com.anoyi.rpc.CommonServiceGrpc;
 import com.anoyi.rpc.GrpcService;
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
+import io.grpc.Channel;
 
 public class ServerContext {
 
-    private ManagedChannel channel;
+    private Channel channel;
 
     private CommonServiceGrpc.CommonServiceBlockingStub blockingStub;
 
-    ServerContext(ManagedChannel channel) {
+    ServerContext(Channel channel) {
         this.channel = channel;
         blockingStub = CommonServiceGrpc.newBlockingStub(channel);
     }
@@ -33,7 +33,7 @@ public class ServerContext {
     /**
      * 获取 Channel
      */
-    public ManagedChannel getChannel() {
+    public Channel getChannel() {
         return channel;
     }
 

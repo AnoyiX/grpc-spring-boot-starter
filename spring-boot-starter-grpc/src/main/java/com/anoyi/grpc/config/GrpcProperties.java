@@ -1,7 +1,7 @@
 package com.anoyi.grpc.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import com.anoyi.grpc.RemoteServer;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
 
@@ -13,6 +13,10 @@ public class GrpcProperties {
     private int port;
 
     private List<RemoteServer> remoteServers;
+
+    private Class clientInterceptor;
+
+    private Class serverInterceptor;
 
     public int getPort() {
         return port;
@@ -36,5 +40,21 @@ public class GrpcProperties {
 
     public void setEnable(boolean enable) {
         this.enable = enable;
+    }
+
+    public Class getClientInterceptor() {
+        return clientInterceptor;
+    }
+
+    public void setClientInterceptor(Class clientInterceptor) {
+        this.clientInterceptor = clientInterceptor;
+    }
+
+    public Class getServerInterceptor() {
+        return serverInterceptor;
+    }
+
+    public void setServerInterceptor(Class serverInterceptor) {
+        this.serverInterceptor = serverInterceptor;
     }
 }

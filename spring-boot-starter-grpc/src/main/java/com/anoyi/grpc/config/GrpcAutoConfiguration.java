@@ -7,7 +7,6 @@ import com.anoyi.grpc.annotation.GrpcServiceScan;
 import com.anoyi.grpc.binding.GrpcServiceProxy;
 import com.anoyi.grpc.service.CommonService;
 import com.anoyi.grpc.util.ClassNameUtils;
-import io.grpc.ServerBuilder;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -15,13 +14,15 @@ import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cglib.proxy.InvocationHandler;
 import org.springframework.cglib.proxy.Proxy;
 import org.springframework.context.ResourceLoaderAware;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
@@ -55,7 +56,7 @@ public class GrpcAutoConfiguration {
     @Bean
     @ConditionalOnProperty(value = "spring.grpc.enable", havingValue = "true")
     public GrpcServerRunner grpcServerRunner() {
-        return new GrpcServerRunner(ServerBuilder.forPort(grpcProperties.getPort()), commonService());
+        return new GrpcServerRunner(grpcProperties, commonService());
     }
 
     @Bean
