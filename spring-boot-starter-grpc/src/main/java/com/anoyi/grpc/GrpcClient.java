@@ -18,8 +18,15 @@ public class GrpcClient {
 
     private final GrpcProperties grpcProperties;
 
+    private ClientInterceptor clientInterceptor;
+
     public GrpcClient(GrpcProperties grpcProperties) {
         this.grpcProperties = grpcProperties;
+    }
+
+    public GrpcClient(GrpcProperties grpcProperties, ClientInterceptor clientInterceptor) {
+        this.grpcProperties = grpcProperties;
+        this.clientInterceptor = clientInterceptor;
     }
 
     /**
@@ -30,6 +37,10 @@ public class GrpcClient {
         if (!CollectionUtils.isEmpty(remoteServers)) {
             for (RemoteServer server : remoteServers) {
                 ManagedChannel channel = ManagedChannelBuilder.forAddress(server.getHost(), server.getPort()).usePlaintext().build();
+                if (clientInterceptor != null){
+                    Channel newChannel = ClientInterceptors.intercept(channel, clientInterceptor);
+                    serverMap.put(server.getServer(), new ServerContext(newChannel));
+                }
                 Class clazz = grpcProperties.getClientInterceptor();
                 if (clazz == null) {
                     serverMap.put(server.getServer(), new ServerContext(channel));
@@ -45,7 +56,6 @@ public class GrpcClient {
                 }
             }
         }
-
     }
 
     /**

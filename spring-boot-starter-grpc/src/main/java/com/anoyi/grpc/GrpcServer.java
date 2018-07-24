@@ -22,11 +22,19 @@ public class GrpcServer implements DisposableBean {
 
     private final CommonService commonService;
 
+    private ServerInterceptor serverInterceptor;
+
     private Server server;
 
     public GrpcServer(GrpcProperties grpcProperties, CommonService commonService) {
         this.grpcProperties = grpcProperties;
         this.commonService = commonService;
+    }
+
+    public GrpcServer(GrpcProperties grpcProperties, CommonService commonService, ServerInterceptor serverInterceptor) {
+        this.grpcProperties = grpcProperties;
+        this.commonService = commonService;
+        this.serverInterceptor = serverInterceptor;
     }
 
     /**
@@ -35,11 +43,15 @@ public class GrpcServer implements DisposableBean {
      */
     public void start() throws Exception{
         int port = grpcProperties.getPort();
-        Class clazz = grpcProperties.getServerInterceptor();
-        if (clazz == null){
-            server = ServerBuilder.forPort(port).addService(commonService).build().start();
+        if (serverInterceptor != null){
+            server = ServerBuilder.forPort(port).addService(ServerInterceptors.intercept(commonService, serverInterceptor)).build().start();
         }else {
-            server = ServerBuilder.forPort(port).addService(ServerInterceptors.intercept(commonService, (ServerInterceptor) clazz.newInstance())).build().start();
+            Class clazz = grpcProperties.getServerInterceptor();
+            if (clazz == null){
+                server = ServerBuilder.forPort(port).addService(commonService).build().start();
+            }else {
+                server = ServerBuilder.forPort(port).addService(ServerInterceptors.intercept(commonService, (ServerInterceptor) clazz.newInstance())).build().start();
+            }
         }
         log.info("gRPC Server started, listening on port " + server.getPort());
         startDaemonAwaitThread();
