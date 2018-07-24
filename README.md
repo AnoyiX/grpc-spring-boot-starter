@@ -31,7 +31,7 @@ mvn spring-boot:run
 
 **6、测试远程调用**
 ```
-curl http://localhost:8080/user/list
+curl http://localhost:8081/user/list
 ```
 
 ### How To Use
