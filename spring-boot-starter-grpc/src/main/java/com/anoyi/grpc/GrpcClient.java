@@ -1,6 +1,7 @@
 package com.anoyi.grpc;
 
 import com.anoyi.grpc.config.GrpcProperties;
+import com.anoyi.grpc.config.RemoteServer;
 import io.grpc.*;
 import org.springframework.util.CollectionUtils;
 
@@ -15,7 +16,16 @@ public class GrpcClient {
 
     private static final Map<String, ServerContext> serverMap = new HashMap<>();
 
+    private final GrpcProperties grpcProperties;
+
     public GrpcClient(GrpcProperties grpcProperties) {
+        this.grpcProperties = grpcProperties;
+    }
+
+    /**
+     * 初始化
+     */
+    public void init(){
         List<RemoteServer> remoteServers = grpcProperties.getRemoteServers();
         if (!CollectionUtils.isEmpty(remoteServers)) {
             for (RemoteServer server : remoteServers) {
@@ -35,6 +45,7 @@ public class GrpcClient {
                 }
             }
         }
+
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.anoyi.grpc.config;
 
-import com.anoyi.grpc.RemoteServer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;

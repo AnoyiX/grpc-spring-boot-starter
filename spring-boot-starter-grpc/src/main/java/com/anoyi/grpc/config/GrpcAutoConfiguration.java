@@ -1,7 +1,7 @@
 package com.anoyi.grpc.config;
 
 import com.anoyi.grpc.GrpcClient;
-import com.anoyi.grpc.GrpcServerRunner;
+import com.anoyi.grpc.GrpcServer;
 import com.anoyi.grpc.annotation.GrpcService;
 import com.anoyi.grpc.annotation.GrpcServiceScan;
 import com.anoyi.grpc.binding.GrpcServiceProxy;
@@ -55,13 +55,17 @@ public class GrpcAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty(value = "spring.grpc.enable", havingValue = "true")
-    public GrpcServerRunner grpcServerRunner() {
-        return new GrpcServerRunner(grpcProperties, commonService());
+    public GrpcServer grpcServerRunner() throws Exception{
+        GrpcServer server = new GrpcServer(grpcProperties, commonService());
+        server.start();
+        return server;
     }
 
     @Bean
     public GrpcClient grpcClient() {
-        return new GrpcClient(grpcProperties);
+        GrpcClient client = new GrpcClient(grpcProperties);
+        client.init();
+        return client;
     }
 
     /**

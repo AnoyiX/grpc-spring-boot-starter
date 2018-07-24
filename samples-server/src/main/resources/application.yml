@@ -5,3 +5,4 @@ spring:
   grpc:
     enable: true
     port: 6565
+    server-interceptor:

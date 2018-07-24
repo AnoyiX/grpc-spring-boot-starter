@@ -1,4 +1,4 @@
-package com.anoyi.grpc;
+package com.anoyi.grpc.config;
 
 /**
  * 远程服务

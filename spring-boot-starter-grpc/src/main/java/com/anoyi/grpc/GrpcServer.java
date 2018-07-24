@@ -7,17 +7,16 @@ import io.grpc.ServerBuilder;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.boot.CommandLineRunner;
 
 import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
- * gRPC Server 启动器
+ * gRPC Server
  */
-public class GrpcServerRunner implements CommandLineRunner, DisposableBean {
+public class GrpcServer implements DisposableBean {
 
-    private static final Logger log = Logger.getLogger(GrpcServerRunner.class.getName());
+    private static final Logger log = Logger.getLogger(GrpcServer.class.getName());
 
     private final GrpcProperties grpcProperties;
 
@@ -25,12 +24,16 @@ public class GrpcServerRunner implements CommandLineRunner, DisposableBean {
 
     private Server server;
 
-    public GrpcServerRunner(GrpcProperties grpcProperties, CommonService commonService) {
+    public GrpcServer(GrpcProperties grpcProperties, CommonService commonService) {
         this.grpcProperties = grpcProperties;
         this.commonService = commonService;
     }
 
-    public void run(String... args) throws Exception {
+    /**
+     * 启动服务
+     * @throws Exception 异常
+     */
+    public void start() throws Exception{
         int port = grpcProperties.getPort();
         Class clazz = grpcProperties.getServerInterceptor();
         if (clazz == null){
@@ -42,6 +45,9 @@ public class GrpcServerRunner implements CommandLineRunner, DisposableBean {
         startDaemonAwaitThread();
     }
 
+    /**
+     * 销毁
+     */
     public void destroy() {
         Optional.ofNullable(server).ifPresent(Server::shutdown);
         log.info("gRPC server stopped.");
@@ -50,7 +56,7 @@ public class GrpcServerRunner implements CommandLineRunner, DisposableBean {
     private void startDaemonAwaitThread() {
         Thread awaitThread = new Thread(()->{
             try {
-                GrpcServerRunner.this.server.awaitTermination();
+                GrpcServer.this.server.awaitTermination();
             } catch (InterruptedException e) {
                 log.warning("gRPC server stopped." + e.getMessage());
             }
