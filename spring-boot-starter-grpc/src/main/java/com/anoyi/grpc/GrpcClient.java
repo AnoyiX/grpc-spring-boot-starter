@@ -40,18 +40,19 @@ public class GrpcClient {
                 if (clientInterceptor != null){
                     Channel newChannel = ClientInterceptors.intercept(channel, clientInterceptor);
                     serverMap.put(server.getServer(), new ServerContext(newChannel));
-                }
-                Class clazz = grpcProperties.getClientInterceptor();
-                if (clazz == null) {
-                    serverMap.put(server.getServer(), new ServerContext(channel));
                 }else {
-                    try {
-                        ClientInterceptor interceptor = (ClientInterceptor) clazz.newInstance();
-                        Channel newChannel = ClientInterceptors.intercept(channel, interceptor);
-                        serverMap.put(server.getServer(), new ServerContext(newChannel));
-                    } catch (InstantiationException | IllegalAccessException e) {
-                        log.warning("ClientInterceptor cannot use, ignoring...");
+                    Class clazz = grpcProperties.getClientInterceptor();
+                    if (clazz == null) {
                         serverMap.put(server.getServer(), new ServerContext(channel));
+                    }else {
+                        try {
+                            ClientInterceptor interceptor = (ClientInterceptor) clazz.newInstance();
+                            Channel newChannel = ClientInterceptors.intercept(channel, interceptor);
+                            serverMap.put(server.getServer(), new ServerContext(newChannel));
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            log.warning("ClientInterceptor cannot use, ignoring...");
+                            serverMap.put(server.getServer(), new ServerContext(channel));
+                        }
                     }
                 }
             }
