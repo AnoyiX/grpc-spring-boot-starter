@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cglib.proxy.InvocationHandler;
@@ -54,14 +55,16 @@ public class GrpcAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(GrpcServer.class)
     @ConditionalOnProperty(value = "spring.grpc.enable", havingValue = "true")
-    public GrpcServer grpcServerRunner() throws Exception{
+    public GrpcServer grpcServer() throws Exception{
         GrpcServer server = new GrpcServer(grpcProperties, commonService());
         server.start();
         return server;
     }
 
     @Bean
+    @ConditionalOnMissingBean(GrpcClient.class)
     public GrpcClient grpcClient() {
         GrpcClient client = new GrpcClient(grpcProperties);
         client.init();
