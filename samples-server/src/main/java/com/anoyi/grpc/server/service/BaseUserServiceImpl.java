@@ -3,6 +3,7 @@ package com.anoyi.grpc.server.service;
 import com.anoyi.grpc.facade.entity.UserEntity;
 import com.anoyi.grpc.facade.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -54,6 +55,7 @@ public class BaseUserServiceImpl implements UserService {
     @Override
     public List<UserEntity> findAll() {
         log.info("base find all users");
+        int x = 1 / 0 ;
         Collection<UserEntity> values = userMap.values();
         if (values.isEmpty()){
             UserEntity userEntity = new UserEntity();

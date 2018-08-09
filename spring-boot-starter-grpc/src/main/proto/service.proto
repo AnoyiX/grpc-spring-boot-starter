@@ -4,6 +4,8 @@ option java_package = "com.anoyi.rpc";
 option java_outer_classname = "GrpcService";
 option java_multiple_files = false;
 
+package common;
+
 // 定义通用的 Grpc 服务
 service CommonService {
     // 处理请求

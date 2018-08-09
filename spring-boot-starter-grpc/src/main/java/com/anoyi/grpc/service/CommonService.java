@@ -37,9 +37,9 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
             Object result = serviceFastMethod.invoke(bean, args);
             response.success(result);
         } catch (NoSuchBeanDefinitionException noSuchBeanDefinitionException) {
-            response.error(noSuchBeanDefinitionException.getMessage());
-        } catch (InvocationTargetException e) {
-            response.error("InvocationTargetException : " + e.getMessage());
+            response.error(noSuchBeanDefinitionException);
+        } catch (InvocationTargetException invocationTargetException) {
+            response.error(invocationTargetException.getTargetException());
         }
         ByteString bytes = ByteString.copyFrom(ProtobufUtils.serialize(response));
         GrpcService.Response grpcResponse = GrpcService.Response.newBuilder().setReponse(bytes).build();
