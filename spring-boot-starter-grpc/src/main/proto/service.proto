@@ -19,5 +19,5 @@ message Request {
 
 // 定义通用的 Grpc 响应体
 message Response {
-    bytes reponse = 1;
+    bytes response = 1;
 }

@@ -30,19 +30,21 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
         GrpcRequest grpcRequest = ProtobufUtils.deserialize(request.getRequest().toByteArray(), GrpcRequest.class);
         GrpcResponse response = new GrpcResponse();
         try {
-            Object bean = getBean(grpcRequest.getClazz());
+            String className = grpcRequest.getClazz();
+            Object bean = getBean(Class.forName(className));
             Object[] args = grpcRequest.getArgs();
+            Class[] argsTypes = getParameterTypes(args);
             FastClass serviceFastClass = FastClass.create(bean.getClass());
-            FastMethod serviceFastMethod = serviceFastClass.getMethod(grpcRequest.getMethod());
+            FastMethod serviceFastMethod = serviceFastClass.getMethod(grpcRequest.getMethod(), argsTypes);
             Object result = serviceFastMethod.invoke(bean, args);
             response.success(result);
-        } catch (NoSuchBeanDefinitionException noSuchBeanDefinitionException) {
+        } catch (NoSuchBeanDefinitionException | ClassNotFoundException noSuchBeanDefinitionException) {
             response.error(noSuchBeanDefinitionException);
         } catch (InvocationTargetException invocationTargetException) {
             response.error(invocationTargetException.getTargetException());
         }
         ByteString bytes = ByteString.copyFrom(ProtobufUtils.serialize(response));
-        GrpcService.Response grpcResponse = GrpcService.Response.newBuilder().setReponse(bytes).build();
+        GrpcService.Response grpcResponse = GrpcService.Response.newBuilder().setResponse(bytes).build();
         responseObserver.onNext(grpcResponse);
         responseObserver.onCompleted();
     }
@@ -61,6 +63,18 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
         } catch (BeansException e) {
             throw new NoSuchBeanDefinitionException(clazz);
         }
+    }
+
+    /**
+     * 获取参数类型
+     */
+    private Class[] getParameterTypes(Object[] parameters){
+        Class[] clazzArray = new Class[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            clazzArray[i] = parameters[i].getClass();
+
+        }
+        return clazzArray;
     }
 
 }

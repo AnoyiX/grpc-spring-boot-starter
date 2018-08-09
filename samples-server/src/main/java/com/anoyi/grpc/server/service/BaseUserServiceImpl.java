@@ -55,7 +55,6 @@ public class BaseUserServiceImpl implements UserService {
     @Override
     public List<UserEntity> findAll() {
         log.info("base find all users");
-        int x = 1 / 0 ;
         Collection<UserEntity> values = userMap.values();
         if (values.isEmpty()){
             UserEntity userEntity = new UserEntity();

@@ -6,12 +6,12 @@
 
     <groupId>com.anoyi</groupId>
     <artifactId>spring-boot-starter-grpc</artifactId>
-    <version>1.5.14.RELEASE</version>
+    <version>1.1.3.RELEASE</version>
 
     <properties>
-        <spring-boot.version>1.5.10.RELEASE</spring-boot.version>
+        <spring-boot.version>2.0.3.RELEASE</spring-boot.version>
         <fastjson.version>1.2.47</fastjson.version>
-        <grpc.version>1.13.2</grpc.version>
+        <grpc.version>1.14.0</grpc.version>
     </properties>
 
     <dependencyManagement>
@@ -60,6 +60,7 @@
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
 
+        <!-- ProtoStuff 序列化/反序列化 -->
         <dependency>
             <groupId>io.protostuff</groupId>
             <artifactId>protostuff-core</artifactId>
@@ -111,13 +112,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <distributionManagement>
-        <repository>
-            <id>central</id>
-            <name>Tezign-Artifactory-releases</name>
-            <url>https://tech-mvn.tezign.com/artifactory/libs-release-local</url>
-        </repository>
-    </distributionManagement>
 
 </project>

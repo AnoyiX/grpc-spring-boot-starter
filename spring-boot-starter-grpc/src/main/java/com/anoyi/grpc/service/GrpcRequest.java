@@ -1,37 +1,35 @@
 package com.anoyi.grpc.service;
 
-import java.lang.reflect.Method;
-
 public class GrpcRequest {
 
     /**
      * 接口
      */
-    private Class clazz;
+    private String clazz;
 
     /**
      * 方法
      */
-    private Method method;
+    private String method;
 
     /**
      * service 方法参数
      */
     private Object[] args;
 
-    public Class getClazz() {
+    public String getClazz() {
         return clazz;
     }
 
-    public void setClazz(Class clazz) {
+    public void setClazz(String clazz) {
         this.clazz = clazz;
     }
 
-    public Method getMethod() {
+    public String getMethod() {
         return method;
     }
 
-    public void setMethod(Method method) {
+    public void setMethod(String method) {
         this.method = method;
     }
 

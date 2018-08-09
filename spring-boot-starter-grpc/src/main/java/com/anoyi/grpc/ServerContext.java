@@ -7,6 +7,7 @@ import com.anoyi.rpc.CommonServiceGrpc;
 import com.anoyi.rpc.GrpcService;
 import com.google.protobuf.ByteString;
 import io.grpc.Channel;
+import org.springframework.util.SerializationUtils;
 
 public class ServerContext {
 
@@ -26,7 +27,7 @@ public class ServerContext {
         byte[] bytes = ProtobufUtils.serialize(grpcRequest);
         GrpcService.Request request = GrpcService.Request.newBuilder().setRequest(ByteString.copyFrom(bytes)).build();
         GrpcService.Response response = blockingStub.handle(request);
-        ByteString responseBody = response.getReponse();
+        ByteString responseBody = response.getResponse();
         return ProtobufUtils.deserialize(responseBody.toByteArray(), GrpcResponse.class);
     }
 
