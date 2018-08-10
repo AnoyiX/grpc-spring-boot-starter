@@ -20,11 +20,6 @@ public class GrpcResponse {
     private Object result;
 
     /**
-     * 服务端异常
-     */
-    private Throwable exception;
-
-    /**
      * 异常堆栈信息
      */
     private StackTraceElement[] stackTrace;
@@ -53,23 +48,14 @@ public class GrpcResponse {
         this.result = result;
     }
 
-    public void error(Throwable exception){
+    public void error(String message){
         this.status = GrpcResponseStatus.ERROR.getCode();
-        this.exception = exception;
-        this.stackTrace = exception.getStackTrace();
+        this.message = message;
     }
 
     public void success(Object result){
         this.status = GrpcResponseStatus.SUCCESS.getCode();
         this.result = result;
-    }
-
-    public Throwable getException() {
-        return exception;
-    }
-
-    public void setException(Throwable exception) {
-        this.exception = exception;
     }
 
     public StackTraceElement[] getStackTrace() {

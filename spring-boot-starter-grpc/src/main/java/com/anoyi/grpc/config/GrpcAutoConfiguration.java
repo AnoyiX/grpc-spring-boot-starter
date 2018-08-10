@@ -5,7 +5,9 @@ import com.anoyi.grpc.GrpcServer;
 import com.anoyi.grpc.annotation.GrpcService;
 import com.anoyi.grpc.annotation.GrpcServiceScan;
 import com.anoyi.grpc.binding.GrpcServiceProxy;
+import com.anoyi.grpc.service.CodecService;
 import com.anoyi.grpc.service.CommonService;
+import com.anoyi.grpc.service.impl.ProtoStuffCodecService;
 import com.anoyi.grpc.util.ClassNameUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cglib.proxy.InvocationHandler;
@@ -49,30 +52,48 @@ public class GrpcAutoConfiguration {
         this.grpcProperties = grpcProperties;
     }
 
+    /**
+     * 全局 RPC 序列化/反序列化
+     */
     @Bean
-    public CommonService commonService() {
-        return new CommonService(applicationContext);
+    @ConditionalOnMissingBean(CodecService.class)
+    public CodecService codecService(){
+        return new ProtoStuffCodecService();
     }
 
+    /**
+     * PRC 服务调用
+     */
+    @Bean
+    public CommonService commonService(CodecService codecService) {
+        return new CommonService(applicationContext, codecService);
+    }
+
+    /**
+     * RPC 服务端
+     */
     @Bean
     @ConditionalOnMissingBean(GrpcServer.class)
     @ConditionalOnProperty(value = "spring.grpc.enable", havingValue = "true")
-    public GrpcServer grpcServer() throws Exception{
-        GrpcServer server = new GrpcServer(grpcProperties, commonService());
+    public GrpcServer grpcServer(CommonService commonService) throws Exception{
+        GrpcServer server = new GrpcServer(grpcProperties, commonService);
         server.start();
         return server;
     }
 
+    /**
+     * RPC 客户端
+     */
     @Bean
     @ConditionalOnMissingBean(GrpcClient.class)
-    public GrpcClient grpcClient() {
-        GrpcClient client = new GrpcClient(grpcProperties);
+    public GrpcClient grpcClient(CodecService codecService) {
+        GrpcClient client = new GrpcClient(grpcProperties, codecService);
         client.init();
         return client;
     }
 
     /**
-     * 手动扫描 @GrpcService 注解的接口，生成动态代理类，注入的 Spring 容器
+     * 手动扫描 @GrpcService 注解的接口，生成动态代理类，注入到 Spring 容器
      */
     public static class ExternalGrpcServiceScannerRegistrar implements BeanFactoryAware, ImportBeanDefinitionRegistrar, ResourceLoaderAware {
 
@@ -95,9 +116,7 @@ public class GrpcAutoConfiguration {
             ClassPathBeanDefinitionScanner scanner = new ClassPathGrpcServiceScanner(registry);
             scanner.setResourceLoader(this.resourceLoader);
             scanner.addIncludeFilter(new AnnotationTypeFilter(GrpcService.class));
-
             Set<BeanDefinition> beanDefinitions = scanPackages(importingClassMetadata, scanner);
-
             ProxyUtil.registBeans(beanFactory, beanDefinitions);
         }
 

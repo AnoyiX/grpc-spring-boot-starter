@@ -2,6 +2,7 @@ package com.anoyi.grpc;
 
 import com.anoyi.grpc.config.GrpcProperties;
 import com.anoyi.grpc.config.RemoteServer;
+import com.anoyi.grpc.service.CodecService;
 import io.grpc.*;
 import org.springframework.util.CollectionUtils;
 
@@ -18,14 +19,18 @@ public class GrpcClient {
 
     private final GrpcProperties grpcProperties;
 
+    private final CodecService codecService;
+
     private ClientInterceptor clientInterceptor;
 
-    public GrpcClient(GrpcProperties grpcProperties) {
+    public GrpcClient(GrpcProperties grpcProperties, CodecService codecService) {
         this.grpcProperties = grpcProperties;
+        this.codecService = codecService;
     }
 
-    public GrpcClient(GrpcProperties grpcProperties, ClientInterceptor clientInterceptor) {
+    public GrpcClient(GrpcProperties grpcProperties, CodecService codecService, ClientInterceptor clientInterceptor) {
         this.grpcProperties = grpcProperties;
+        this.codecService = codecService;
         this.clientInterceptor = clientInterceptor;
     }
 
@@ -39,19 +44,19 @@ public class GrpcClient {
                 ManagedChannel channel = ManagedChannelBuilder.forAddress(server.getHost(), server.getPort()).usePlaintext().build();
                 if (clientInterceptor != null){
                     Channel newChannel = ClientInterceptors.intercept(channel, clientInterceptor);
-                    serverMap.put(server.getServer(), new ServerContext(newChannel));
+                    serverMap.put(server.getServer(), new ServerContext(newChannel, codecService));
                 }else {
                     Class clazz = grpcProperties.getClientInterceptor();
                     if (clazz == null) {
-                        serverMap.put(server.getServer(), new ServerContext(channel));
+                        serverMap.put(server.getServer(), new ServerContext(channel, codecService));
                     }else {
                         try {
                             ClientInterceptor interceptor = (ClientInterceptor) clazz.newInstance();
                             Channel newChannel = ClientInterceptors.intercept(channel, interceptor);
-                            serverMap.put(server.getServer(), new ServerContext(newChannel));
+                            serverMap.put(server.getServer(), new ServerContext(newChannel, codecService));
                         } catch (InstantiationException | IllegalAccessException e) {
                             log.warning("ClientInterceptor cannot use, ignoring...");
-                            serverMap.put(server.getServer(), new ServerContext(channel));
+                            serverMap.put(server.getServer(), new ServerContext(channel, codecService));
                         }
                     }
                 }

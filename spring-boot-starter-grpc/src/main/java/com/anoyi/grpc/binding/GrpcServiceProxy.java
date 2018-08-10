@@ -30,8 +30,7 @@ public class GrpcServiceProxy<T> implements InvocationHandler {
         request.setArgs(args);
         GrpcResponse response = GrpcClient.connect(server).handle(request);
         if (GrpcResponseStatus.ERROR.getCode() == response.getStatus()) {
-            Throwable throwable = response.getException();
-            GrpcException exception = new GrpcException(throwable.getClass().getName() + ": " + throwable.getMessage());
+            GrpcException exception = new GrpcException(response.getMessage());
             exception.setStackTrace(response.getStackTrace());
             throw exception;
         }
