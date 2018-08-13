@@ -1,6 +1,5 @@
 package com.anoyi.grpc.service;
 
-import com.anoyi.grpc.util.ProtobufUtils;
 import com.anoyi.rpc.CommonServiceGrpc;
 import com.anoyi.rpc.GrpcService;
 import com.google.protobuf.ByteString;
@@ -77,6 +76,5 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
         }
         return clazzArray;
     }
-
 
 }

@@ -6,7 +6,6 @@ import com.anoyi.grpc.service.GrpcRequest;
 import com.anoyi.grpc.service.GrpcResponse;
 import com.anoyi.rpc.GrpcService;
 import com.google.protobuf.ByteString;
-import org.springframework.util.SerializationUtils;
 
 /**
  * FastJSON 序列化/反序列化工具
