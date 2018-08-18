@@ -20,6 +20,12 @@ public class UserController {
         return userEntity;
     }
 
+    @PostMapping("/addAll")
+    public List<UserEntity> insertUsers(@RequestBody List<UserEntity> userEntityList){
+        userService.insertAll(userEntityList);
+        return userService.findAll();
+    }
+
     @GetMapping("/find")
     public UserEntity findUser(@RequestParam("id") Long id){
         return userService.findById(id);

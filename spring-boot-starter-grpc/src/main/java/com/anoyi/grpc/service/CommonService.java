@@ -5,6 +5,7 @@ import com.anoyi.rpc.CommonServiceGrpc;
 import com.anoyi.rpc.GrpcService;
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.cglib.reflect.FastClass;
@@ -12,6 +13,7 @@ import org.springframework.cglib.reflect.FastMethod;
 import org.springframework.context.support.AbstractApplicationContext;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,8 +36,9 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
             Object bean = getBean(Class.forName(className));
             Object[] args = grpcRequest.getArgs();
             Class[] argsTypes = getParameterTypes(args);
+            Method matchingMethod = MethodUtils.getMatchingMethod(Class.forName(className), grpcRequest.getMethod(), argsTypes);
             FastClass serviceFastClass = FastClass.create(bean.getClass());
-            FastMethod serviceFastMethod = serviceFastClass.getMethod(grpcRequest.getMethod(), argsTypes);
+            FastMethod serviceFastMethod = serviceFastClass.getMethod(matchingMethod);
             Object result = serviceFastMethod.invoke(bean, args);
             response.success(result);
         } catch (NoSuchBeanDefinitionException | ClassNotFoundException noSuchBeanDefinitionException) {

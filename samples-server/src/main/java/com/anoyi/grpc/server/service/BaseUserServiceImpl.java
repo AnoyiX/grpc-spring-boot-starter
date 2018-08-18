@@ -64,4 +64,11 @@ public class BaseUserServiceImpl implements UserService {
         return new ArrayList<>(values);
     }
 
+    @Override
+    public void insertAll(List<UserEntity> userEntityList) {
+        for (UserEntity userEntity : userEntityList) {
+            userMap.putIfAbsent(userEntity.getId(), userEntity);
+        }
+    }
+
 }

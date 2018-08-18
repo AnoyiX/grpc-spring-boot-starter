@@ -19,4 +19,6 @@ public interface UserService {
 
     List<UserEntity> findAll();
 
+    void insertAll(List<UserEntity> userEntityList);
+
 }
