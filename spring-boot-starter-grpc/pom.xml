@@ -120,4 +120,16 @@
         </plugins>
     </build>
 
+    <!-- Maven 仓库 -->
+    <distributionManagement>
+        <repository>
+            <id>central</id>
+            <url>https://mvn.anoyi.com/artifactory/libs-release-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>central</id>
+            <url>https://mvn.anoyi.com/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
