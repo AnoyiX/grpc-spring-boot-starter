@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="samples-client" />
+        <module name="samples-facade" />
+        <module name="samples-server" />
+        <module name="spring-boot-starter-grpc" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="1.8">
+      <module name="samples-client" target="1.8" />
+      <module name="samples-facade" target="1.5" />
+      <module name="samples-server" target="1.8" />
+      <module name="spring-boot-starter-grpc" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

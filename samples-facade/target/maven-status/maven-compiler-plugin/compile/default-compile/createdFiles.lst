@@ -1,0 +1,5 @@
+com/anoyi/grpc/facade/entity/PetEntity.class
+com/anoyi/grpc/facade/entity/UserEntity.class
+com/anoyi/grpc/facade/service/UserServiceByFastJSON.class
+com/anoyi/grpc/facade/service/UserServiceByProtoStuff.class
+com/anoyi/grpc/facade/service/UserServiceBySofaHessian.class
