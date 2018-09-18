@@ -1,5 +1,0 @@
-/Users/admin/code/github/spring-boot-starter-grpc/samples-facade/src/main/java/com/anoyi/grpc/facade/service/UserServiceBySofaHessian.java
-/Users/admin/code/github/spring-boot-starter-grpc/samples-facade/src/main/java/com/anoyi/grpc/facade/service/UserServiceByFastJSON.java
-/Users/admin/code/github/spring-boot-starter-grpc/samples-facade/src/main/java/com/anoyi/grpc/facade/service/UserServiceByProtoStuff.java
-/Users/admin/code/github/spring-boot-starter-grpc/samples-facade/src/main/java/com/anoyi/grpc/facade/entity/UserEntity.java
-/Users/admin/code/github/spring-boot-starter-grpc/samples-facade/src/main/java/com/anoyi/grpc/facade/entity/PetEntity.java

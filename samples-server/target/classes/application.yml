@@ -1,7 +1,0 @@
-server:
-  port: 8080
-
-spring:
-  grpc:
-    enable: true
-    port: 6565
