@@ -41,7 +41,7 @@ curl http://localhost:8081/user/list
 <dependency>
     <groupId>com.anoyi</groupId>
     <artifactId>spring-boot-starter-grpc</artifactId>
-    <version>1.1.5.RELEASE</version>
+    <version>2.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -181,6 +181,21 @@ spring:
 4.3 官方示例
 
 [https://github.com/grpc/grpc-java/tree/master/examples/src/main/java/io/grpc/examples/header](https://github.com/grpc/grpc-java/tree/master/examples/src/main/java/io/grpc/examples/header)
+
+**5、序列化与反序列化**
+
+目前支持 `protostuff` 和 `fastjson` 两种方式，默认 `protostuff`.
+
+5.1 使用使用 `fastjson` 作为序列化与反序列化工具，只需在服务提供方和服务调用方注入如下 Bean 即可：
+```
+    @Bean
+    @Primary
+    public CodecService codecService(){
+        return new FastJSONCodecService();
+    }
+```
+
+5.2 自定义序列化与反序列化的实现，只需实现 `CodecService` 接口，并在服务提供方和服务调用方注入自定义的实现类即可。
 
 
 ### 相关文档

@@ -1,6 +1,13 @@
 package com.anoyi.grpc.service;
 
-public class GrpcRequest {
+import lombok.Data;
+
+import java.io.Serializable;
+
+@Data
+public class GrpcRequest implements Serializable {
+
+    private static final long serialVersionUID = 4729940126314117605L;
 
     /**
      * 接口
@@ -16,29 +23,5 @@ public class GrpcRequest {
      * service 方法参数
      */
     private Object[] args;
-
-    public String getClazz() {
-        return clazz;
-    }
-
-    public void setClazz(String clazz) {
-        this.clazz = clazz;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    public Object[] getArgs() {
-        return args;
-    }
-
-    public void setArgs(Object[] args) {
-        this.args = args;
-    }
 
 }

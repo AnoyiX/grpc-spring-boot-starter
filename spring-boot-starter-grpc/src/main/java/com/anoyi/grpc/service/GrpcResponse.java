@@ -1,8 +1,14 @@
 package com.anoyi.grpc.service;
 
 import com.anoyi.grpc.constant.GrpcResponseStatus;
+import lombok.Data;
 
-public class GrpcResponse {
+import java.io.Serializable;
+
+@Data
+public class GrpcResponse implements Serializable {
+
+    private static final long serialVersionUID = -7161518426386434816L;
 
     /**
      * 响应状态
@@ -29,54 +35,14 @@ public class GrpcResponse {
      */
     private StackTraceElement[] stackTrace;
 
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
+    void error(String message){
+        this.status = GrpcResponseStatus.ERROR.getCode();
         this.message = message;
     }
 
-    public Object getResult() {
-        return result;
-    }
-
-    public void setResult(Object result) {
-        this.result = result;
-    }
-
-    public void error(Throwable exception){
-        this.status = GrpcResponseStatus.ERROR.getCode();
-        this.exception = exception;
-        this.stackTrace = exception.getStackTrace();
-    }
-
-    public void success(Object result){
+    void success(Object result){
         this.status = GrpcResponseStatus.SUCCESS.getCode();
         this.result = result;
     }
 
-    public Throwable getException() {
-        return exception;
-    }
-
-    public void setException(Throwable exception) {
-        this.exception = exception;
-    }
-
-    public StackTraceElement[] getStackTrace() {
-        return stackTrace;
-    }
-
-    public void setStackTrace(StackTraceElement[] stackTrace) {
-        this.stackTrace = stackTrace;
-    }
 }

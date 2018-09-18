@@ -6,17 +6,16 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.util.Optional;
-import java.util.logging.Logger;
 
 /**
  * gRPC Server
  */
+@Slf4j
 public class GrpcServer implements DisposableBean {
-
-    private static final Logger log = Logger.getLogger(GrpcServer.class.getName());
 
     private final GrpcProperties grpcProperties;
 
@@ -70,7 +69,7 @@ public class GrpcServer implements DisposableBean {
             try {
                 GrpcServer.this.server.awaitTermination();
             } catch (InterruptedException e) {
-                log.warning("gRPC server stopped." + e.getMessage());
+                log.warn("gRPC server stopped." + e.getMessage());
             }
         });
         awaitThread.setDaemon(false);

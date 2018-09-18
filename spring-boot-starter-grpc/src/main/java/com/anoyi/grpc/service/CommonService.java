@@ -1,6 +1,6 @@
 package com.anoyi.grpc.service;
 
-import com.anoyi.grpc.util.ProtobufUtils;
+import com.anoyi.grpc.util.SerializeUtils;
 import com.anoyi.rpc.CommonServiceGrpc;
 import com.anoyi.rpc.GrpcService;
 import com.google.protobuf.ByteString;
@@ -23,13 +23,18 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
 
     private final AbstractApplicationContext applicationContext;
 
-    public CommonService(AbstractApplicationContext applicationContext) {
+    private final SerializeService defaultSerializationService;
+
+    public CommonService(AbstractApplicationContext applicationContext, SerializeService serializeService) {
         this.applicationContext = applicationContext;
+        this.defaultSerializationService = serializeService;
     }
 
     @Override
     public void handle(GrpcService.Request request, StreamObserver<GrpcService.Response> responseObserver) {
-        GrpcRequest grpcRequest = ProtobufUtils.deserialize(request.getRequest().toByteArray(), GrpcRequest.class);
+        int serialize = request.getSerialize();
+        SerializeService serializeService = SerializeUtils.getSerializeService(serialize, defaultSerializationService);
+        GrpcRequest grpcRequest = serializeService.deserialize(request);
         GrpcResponse response = new GrpcResponse();
         try {
             String className = grpcRequest.getClazz();
@@ -41,12 +46,10 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
             FastMethod serviceFastMethod = serviceFastClass.getMethod(matchingMethod);
             Object result = serviceFastMethod.invoke(bean, args);
             response.success(result);
-        } catch (NoSuchBeanDefinitionException | ClassNotFoundException noSuchBeanDefinitionException) {
-            response.error(noSuchBeanDefinitionException);
-        } catch (InvocationTargetException invocationTargetException) {
-            response.error(invocationTargetException.getTargetException());
+        } catch (NoSuchBeanDefinitionException | ClassNotFoundException | InvocationTargetException exception) {
+            response.error(exception.getClass().getName() + ": " + exception.getMessage());
         }
-        ByteString bytes = ByteString.copyFrom(ProtobufUtils.serialize(response));
+        ByteString bytes = serializeService.serialize(response);
         GrpcService.Response grpcResponse = GrpcService.Response.newBuilder().setResponse(bytes).build();
         responseObserver.onNext(grpcResponse);
         responseObserver.onCompleted();

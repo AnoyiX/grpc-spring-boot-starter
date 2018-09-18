@@ -1,34 +1,33 @@
 package com.anoyi.grpc.facade.entity;
 
-public class UserEntity {
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 人物
+ */
+@Data
+public class UserEntity implements Serializable {
+
+    private static final long serialVersionUID = 0L;
 
     private Long id;
 
-    private String nickname;
+    private String name;
 
     private int age;
 
-    public Long getId() {
-        return id;
-    }
+    private String gender;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private Map<String, Integer> scores;
 
-    public String getNickname() {
-        return nickname;
-    }
+    private UserEntity friend;
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
+    private PetEntity pet;
 
-    public int getAge() {
-        return age;
-    }
+    private List<Object> listValue;
 
-    public void setAge(int age) {
-        this.age = age;
-    }
 }

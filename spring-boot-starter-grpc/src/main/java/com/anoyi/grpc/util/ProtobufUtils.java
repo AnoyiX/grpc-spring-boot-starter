@@ -7,7 +7,6 @@ import io.protostuff.runtime.RuntimeSchema;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 public class ProtobufUtils {
 
     // 缓存 schema 对象的 map

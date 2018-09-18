@@ -6,7 +6,11 @@ import com.anoyi.grpc.annotation.GrpcService;
 import com.anoyi.grpc.annotation.GrpcServiceScan;
 import com.anoyi.grpc.binding.GrpcServiceProxy;
 import com.anoyi.grpc.service.CommonService;
+import com.anoyi.grpc.service.SerializeService;
+import com.anoyi.grpc.service.impl.ProtoStuffSerializeService;
+import com.anoyi.grpc.service.impl.SofaHessianSerializeService;
 import com.anoyi.grpc.util.ClassNameUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -32,13 +36,11 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.logging.Logger;
 
+@Slf4j
 @Configuration
 @EnableConfigurationProperties(GrpcProperties.class)
 public class GrpcAutoConfiguration {
-
-    private static final Logger log = Logger.getLogger(GrpcAutoConfiguration.class.getName());
 
     private final AbstractApplicationContext applicationContext;
 
@@ -49,30 +51,48 @@ public class GrpcAutoConfiguration {
         this.grpcProperties = grpcProperties;
     }
 
+    /**
+     * 全局 RPC 序列化/反序列化
+     */
     @Bean
-    public CommonService commonService() {
-        return new CommonService(applicationContext);
+    @ConditionalOnMissingBean(SerializeService.class)
+    public SerializeService serializeService(){
+        return new SofaHessianSerializeService();
     }
 
+    /**
+     * PRC 服务调用
+     */
+    @Bean
+    public CommonService commonService(SerializeService serializeService) {
+        return new CommonService(applicationContext, serializeService);
+    }
+
+    /**
+     * RPC 服务端
+     */
     @Bean
     @ConditionalOnMissingBean(GrpcServer.class)
     @ConditionalOnProperty(value = "spring.grpc.enable", havingValue = "true")
-    public GrpcServer grpcServer() throws Exception{
-        GrpcServer server = new GrpcServer(grpcProperties, commonService());
+    public GrpcServer grpcServer(CommonService commonService) throws Exception{
+        GrpcServer server = new GrpcServer(grpcProperties, commonService);
         server.start();
         return server;
     }
 
+    /**
+     * RPC 客户端
+     */
     @Bean
     @ConditionalOnMissingBean(GrpcClient.class)
-    public GrpcClient grpcClient() {
-        GrpcClient client = new GrpcClient(grpcProperties);
+    public GrpcClient grpcClient(SerializeService serializeService) {
+        GrpcClient client = new GrpcClient(grpcProperties, serializeService);
         client.init();
         return client;
     }
 
     /**
-     * 手动扫描 @GrpcService 注解的接口，生成动态代理类，注入的 Spring 容器
+     * 手动扫描 @GrpcService 注解的接口，生成动态代理类，注入到 Spring 容器
      */
     public static class ExternalGrpcServiceScannerRegistrar implements BeanFactoryAware, ImportBeanDefinitionRegistrar, ResourceLoaderAware {
 
@@ -95,9 +115,7 @@ public class GrpcAutoConfiguration {
             ClassPathBeanDefinitionScanner scanner = new ClassPathGrpcServiceScanner(registry);
             scanner.setResourceLoader(this.resourceLoader);
             scanner.addIncludeFilter(new AnnotationTypeFilter(GrpcService.class));
-
             Set<BeanDefinition> beanDefinitions = scanPackages(importingClassMetadata, scanner);
-
             ProxyUtil.registBeans(beanFactory, beanDefinitions);
         }
 
@@ -108,7 +126,7 @@ public class GrpcAutoConfiguration {
             List<String> packages = new ArrayList<>();
             Map<String, Object> annotationAttributes = importingClassMetadata.getAnnotationAttributes(GrpcServiceScan.class.getCanonicalName());
             if (annotationAttributes != null) {
-                String[] basePackages = (String[]) annotationAttributes.get("basePackages");
+                String[] basePackages = (String[]) annotationAttributes.get("packages");
                 if (basePackages.length > 0){
                     packages.addAll(Arrays.asList(basePackages));
                 }
@@ -149,14 +167,15 @@ public class GrpcAutoConfiguration {
                 try {
                     // 创建代理类
                     Class<?> target = Class.forName(className);
-                    InvocationHandler invocationHandler = new GrpcServiceProxy<>(target);
+                    Object invoker = new Object();
+                    InvocationHandler invocationHandler = new GrpcServiceProxy<>(target, invoker);
                     Object proxy = Proxy.newProxyInstance(GrpcService.class.getClassLoader(), new Class[]{target}, invocationHandler);
 
                     // 注册到 Spring 容器
                     String beanName = ClassNameUtils.beanName(className);
                     ((DefaultListableBeanFactory) beanFactory).registerSingleton(beanName, proxy);
                 } catch (ClassNotFoundException e) {
-                    log.warning("class not found : " + className);
+                    log.warn("class not found : " + className);
                 }
             }
         }
