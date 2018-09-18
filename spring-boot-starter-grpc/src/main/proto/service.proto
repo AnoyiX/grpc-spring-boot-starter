@@ -12,7 +12,8 @@ service CommonService {
 
 // 定义通用的 Grpc 请求体
 message Request {
-    bytes request = 1;
+    int32 serialize = 1;
+    bytes request = 2;
 }
 
 // 定义通用的 Grpc 响应体

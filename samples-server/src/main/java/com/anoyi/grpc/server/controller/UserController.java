@@ -1,19 +1,19 @@
 package com.anoyi.grpc.server.controller;
 
-import com.anoyi.grpc.facade.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.anoyi.grpc.facade.service.UserServiceBySofaHessian;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@AllArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserServiceBySofaHessian userServiceBySofaHessian;
 
     @RequestMapping("/")
     public String hello(){
-        return userService.findAll().toString();
+        return userServiceBySofaHessian.findAll().toString();
     }
 
 }

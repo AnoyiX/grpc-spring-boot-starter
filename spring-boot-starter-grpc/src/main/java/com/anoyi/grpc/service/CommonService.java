@@ -1,5 +1,6 @@
 package com.anoyi.grpc.service;
 
+import com.anoyi.grpc.util.SerializeUtils;
 import com.anoyi.rpc.CommonServiceGrpc;
 import com.anoyi.rpc.GrpcService;
 import com.google.protobuf.ByteString;
@@ -20,16 +21,18 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
 
     private final AbstractApplicationContext applicationContext;
 
-    private final CodecService codecService;
+    private final SerializeService defaultSerializationService;
 
-    public CommonService(AbstractApplicationContext applicationContext, CodecService codecService) {
+    public CommonService(AbstractApplicationContext applicationContext, SerializeService serializeService) {
         this.applicationContext = applicationContext;
-        this.codecService = codecService;
+        this.defaultSerializationService = serializeService;
     }
 
     @Override
     public void handle(GrpcService.Request request, StreamObserver<GrpcService.Response> responseObserver) {
-        GrpcRequest grpcRequest = codecService.deserialize(request);
+        int serialize = request.getSerialize();
+        SerializeService serializeService = SerializeUtils.getSerializeService(serialize, defaultSerializationService);
+        GrpcRequest grpcRequest = serializeService.deserialize(request);
         GrpcResponse response = new GrpcResponse();
         try {
             String className = grpcRequest.getClazz();
@@ -43,7 +46,7 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
         } catch (NoSuchBeanDefinitionException | ClassNotFoundException | InvocationTargetException exception) {
             response.error(exception.getClass().getName() + ": " + exception.getMessage());
         }
-        ByteString bytes = codecService.serialize(response);
+        ByteString bytes = serializeService.serialize(response);
         GrpcService.Response grpcResponse = GrpcService.Response.newBuilder().setResponse(bytes).build();
         responseObserver.onNext(grpcResponse);
         responseObserver.onCompleted();

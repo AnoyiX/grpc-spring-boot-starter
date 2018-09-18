@@ -5,10 +5,12 @@ import com.anoyi.grpc.GrpcServer;
 import com.anoyi.grpc.annotation.GrpcService;
 import com.anoyi.grpc.annotation.GrpcServiceScan;
 import com.anoyi.grpc.binding.GrpcServiceProxy;
-import com.anoyi.grpc.service.CodecService;
 import com.anoyi.grpc.service.CommonService;
-import com.anoyi.grpc.service.impl.ProtoStuffCodecService;
+import com.anoyi.grpc.service.SerializeService;
+import com.anoyi.grpc.service.impl.ProtoStuffSerializeService;
+import com.anoyi.grpc.service.impl.SofaHessianSerializeService;
 import com.anoyi.grpc.util.ClassNameUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -17,7 +19,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cglib.proxy.InvocationHandler;
@@ -35,13 +36,11 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.logging.Logger;
 
+@Slf4j
 @Configuration
 @EnableConfigurationProperties(GrpcProperties.class)
 public class GrpcAutoConfiguration {
-
-    private static final Logger log = Logger.getLogger(GrpcAutoConfiguration.class.getName());
 
     private final AbstractApplicationContext applicationContext;
 
@@ -56,17 +55,17 @@ public class GrpcAutoConfiguration {
      * 全局 RPC 序列化/反序列化
      */
     @Bean
-    @ConditionalOnMissingBean(CodecService.class)
-    public CodecService codecService(){
-        return new ProtoStuffCodecService();
+    @ConditionalOnMissingBean(SerializeService.class)
+    public SerializeService serializeService(){
+        return new SofaHessianSerializeService();
     }
 
     /**
      * PRC 服务调用
      */
     @Bean
-    public CommonService commonService(CodecService codecService) {
-        return new CommonService(applicationContext, codecService);
+    public CommonService commonService(SerializeService serializeService) {
+        return new CommonService(applicationContext, serializeService);
     }
 
     /**
@@ -86,8 +85,8 @@ public class GrpcAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean(GrpcClient.class)
-    public GrpcClient grpcClient(CodecService codecService) {
-        GrpcClient client = new GrpcClient(grpcProperties, codecService);
+    public GrpcClient grpcClient(SerializeService serializeService) {
+        GrpcClient client = new GrpcClient(grpcProperties, serializeService);
         client.init();
         return client;
     }
@@ -127,7 +126,7 @@ public class GrpcAutoConfiguration {
             List<String> packages = new ArrayList<>();
             Map<String, Object> annotationAttributes = importingClassMetadata.getAnnotationAttributes(GrpcServiceScan.class.getCanonicalName());
             if (annotationAttributes != null) {
-                String[] basePackages = (String[]) annotationAttributes.get("basePackages");
+                String[] basePackages = (String[]) annotationAttributes.get("packages");
                 if (basePackages.length > 0){
                     packages.addAll(Arrays.asList(basePackages));
                 }
@@ -168,14 +167,15 @@ public class GrpcAutoConfiguration {
                 try {
                     // 创建代理类
                     Class<?> target = Class.forName(className);
-                    InvocationHandler invocationHandler = new GrpcServiceProxy<>(target);
+                    Object invoker = new Object();
+                    InvocationHandler invocationHandler = new GrpcServiceProxy<>(target, invoker);
                     Object proxy = Proxy.newProxyInstance(GrpcService.class.getClassLoader(), new Class[]{target}, invocationHandler);
 
                     // 注册到 Spring 容器
                     String beanName = ClassNameUtils.beanName(className);
                     ((DefaultListableBeanFactory) beanFactory).registerSingleton(beanName, proxy);
                 } catch (ClassNotFoundException e) {
-                    log.warning("class not found : " + className);
+                    log.warn("class not found : " + className);
                 }
             }
         }

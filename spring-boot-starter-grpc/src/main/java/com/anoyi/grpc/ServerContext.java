@@ -1,47 +1,48 @@
 package com.anoyi.grpc;
 
 import com.alibaba.fastjson.JSONObject;
-import com.anoyi.grpc.config.GrpcAutoConfiguration;
-import com.anoyi.grpc.service.CodecService;
+import com.anoyi.grpc.constant.SerializeType;
 import com.anoyi.grpc.service.GrpcRequest;
 import com.anoyi.grpc.service.GrpcResponse;
+import com.anoyi.grpc.service.SerializeService;
+import com.anoyi.grpc.util.SerializeUtils;
 import com.anoyi.rpc.CommonServiceGrpc;
 import com.anoyi.rpc.GrpcService;
 import com.google.protobuf.ByteString;
 import io.grpc.Channel;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.logging.Logger;
-
+@Slf4j
 public class ServerContext {
-
-    private static final Logger log = Logger.getLogger(GrpcAutoConfiguration.class.getName());
 
     private Channel channel;
 
-    private CodecService codecService;
+    private final SerializeService defaultSerializeService;
 
     private CommonServiceGrpc.CommonServiceBlockingStub blockingStub;
 
-    ServerContext(Channel channel, CodecService codecService) {
+    ServerContext(Channel channel, SerializeService serializeService) {
         this.channel = channel;
-        this.codecService = codecService;
+        this.defaultSerializeService = serializeService;
         blockingStub = CommonServiceGrpc.newBlockingStub(channel);
     }
 
     /**
      * 处理 gRPC 请求
      */
-    public GrpcResponse handle(GrpcRequest grpcRequest) {
-        ByteString bytes = codecService.serialize(grpcRequest);
-        GrpcService.Request request = GrpcService.Request.newBuilder().setRequest(bytes).build();
+    public GrpcResponse handle(SerializeType serializeType, GrpcRequest grpcRequest) {
+        SerializeService serializeService = SerializeUtils.getSerializeService(serializeType, this.defaultSerializeService);
+        ByteString bytes = serializeService.serialize(grpcRequest);
+        int value = (serializeType == null ? -1 : serializeType.getValue());
+        GrpcService.Request request = GrpcService.Request.newBuilder().setSerialize(value).setRequest(bytes).build();
         GrpcService.Response response;
         try{
             response = blockingStub.withWaitForReady().handle(request);
         }catch (Exception e){
-            log.warning("GRPC handle error, re-handle: " + JSONObject.toJSONString(grpcRequest));
+            log.warn("GRPC handle error, re-handle: " + JSONObject.toJSONString(grpcRequest));
             response = blockingStub.withWaitForReady().handle(request);
         }
-        return codecService.deserialize(response);
+        return serializeService.deserialize(response);
     }
 
     /**

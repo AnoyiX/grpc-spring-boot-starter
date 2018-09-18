@@ -14,8 +14,8 @@ import java.lang.annotation.Target;
 public @interface GrpcServiceScan {
 
     /**
-     * packages to scan @GrpcService
+     * `@GrpcService` 所注解的包扫描路径
      */
-    String[] basePackages() default {};
+    String[] packages() default {};
 
 }
