@@ -37,10 +37,10 @@ public class ServerContext {
         GrpcService.Request request = GrpcService.Request.newBuilder().setSerialize(value).setRequest(bytes).build();
         GrpcService.Response response;
         try{
-            response = blockingStub.withWaitForReady().handle(request);
+            response = blockingStub.handle(request);
         }catch (Exception e){
             log.warn("GRPC handle error, re-handle: " + JSONObject.toJSONString(grpcRequest));
-            response = blockingStub.withWaitForReady().handle(request);
+            response = blockingStub.handle(request);
         }
         return serializeService.deserialize(response);
     }

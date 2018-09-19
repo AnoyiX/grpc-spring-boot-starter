@@ -9,9 +9,9 @@
     <version>2.0.0-SNAPSHOT</version>
 
     <properties>
-        <spring-boot.version>2.0.3.RELEASE</spring-boot.version>
+        <spring-boot.version>2.0.5.RELEASE</spring-boot.version>
         <fastjson.version>1.2.47</fastjson.version>
-        <grpc.version>1.14.0</grpc.version>
+        <grpc.version>1.15.0</grpc.version>
     </properties>
 
     <dependencyManagement>
@@ -31,7 +31,7 @@
         <!-- gRPC -->
         <dependency>
             <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
+            <artifactId>grpc-netty-shaded</artifactId>
             <version>${grpc.version}</version>
         </dependency>
 
