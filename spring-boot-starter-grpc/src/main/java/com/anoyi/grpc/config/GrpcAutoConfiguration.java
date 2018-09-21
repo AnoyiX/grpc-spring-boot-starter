@@ -7,7 +7,6 @@ import com.anoyi.grpc.annotation.GrpcServiceScan;
 import com.anoyi.grpc.binding.GrpcServiceProxy;
 import com.anoyi.grpc.service.CommonService;
 import com.anoyi.grpc.service.SerializeService;
-import com.anoyi.grpc.service.impl.ProtoStuffSerializeService;
 import com.anoyi.grpc.service.impl.SofaHessianSerializeService;
 import com.anoyi.grpc.util.ClassNameUtils;
 import lombok.extern.slf4j.Slf4j;
