@@ -76,6 +76,9 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
      * 获取参数类型
      */
     private Class[] getParameterTypes(Object[] parameters){
+        if (parameters == null){
+            return null;
+        }
         Class[] clazzArray = new Class[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             clazzArray[i] = parameters[i].getClass();
