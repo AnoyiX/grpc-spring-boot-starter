@@ -47,7 +47,8 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
             Object result = serviceFastMethod.invoke(bean, args);
             response.success(result);
         } catch (NoSuchBeanDefinitionException | ClassNotFoundException | InvocationTargetException exception) {
-            response.error(exception.getClass().getName() + ": " + exception.getMessage());
+            String message = exception.getClass().getName() + ": " + exception.getMessage();
+            response.error(message, exception, exception.getStackTrace());
         }
         ByteString bytes = serializeService.serialize(response);
         GrpcService.Response grpcResponse = GrpcService.Response.newBuilder().setResponse(bytes).build();
