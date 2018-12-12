@@ -8,8 +8,10 @@ import com.anoyi.grpc.exception.GrpcException;
 import com.anoyi.grpc.service.GrpcRequest;
 import com.anoyi.grpc.service.GrpcResponse;
 import org.springframework.cglib.proxy.InvocationHandler;
+import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 public class GrpcServiceProxy<T> implements InvocationHandler {
 
@@ -42,14 +44,18 @@ public class GrpcServiceProxy<T> implements InvocationHandler {
         request.setArgs(args);
         SerializeType[] serializeTypeArray = annotation.serialization();
         SerializeType serializeType = null;
-        if (serializeTypeArray.length > 0){
+        if (serializeTypeArray.length > 0) {
             serializeType = serializeTypeArray[0];
         }
         GrpcResponse response = GrpcClient.connect(server).handle(serializeType, request);
         if (GrpcResponseStatus.ERROR.getCode() == response.getStatus()) {
             Throwable throwable = response.getException();
             GrpcException exception = new GrpcException(throwable.getClass().getName() + ": " + throwable.getMessage());
-            exception.setStackTrace(response.getStackTrace());
+            StackTraceElement[] exceptionStackTrace = exception.getStackTrace();
+            StackTraceElement[] responseStackTrace = response.getStackTrace();
+            StackTraceElement[] allStackTrace = Arrays.copyOf(exceptionStackTrace, exceptionStackTrace.length + responseStackTrace.length);
+            System.arraycopy(responseStackTrace, 0, allStackTrace, exceptionStackTrace.length, responseStackTrace.length);
+            exception.setStackTrace(allStackTrace);
             throw exception;
         }
         return response.getResult();
