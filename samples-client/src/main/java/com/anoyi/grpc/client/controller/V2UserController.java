@@ -2,7 +2,6 @@ package com.anoyi.grpc.client.controller;
 
 import com.anoyi.grpc.facade.entity.UserEntity;
 import com.anoyi.grpc.facade.service.UserServiceByProtoStuff;
-import com.anoyi.grpc.facade.service.UserServiceBySofaHessian;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
