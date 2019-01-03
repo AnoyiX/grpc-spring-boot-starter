@@ -35,13 +35,7 @@ public class ServerContext {
         ByteString bytes = serializeService.serialize(grpcRequest);
         int value = (serializeType == null ? -1 : serializeType.getValue());
         GrpcService.Request request = GrpcService.Request.newBuilder().setSerialize(value).setRequest(bytes).build();
-        GrpcService.Response response;
-        try{
-            response = blockingStub.handle(request);
-        }catch (Exception e){
-            log.warn("GRPC handle error, re-handle: " + JSONObject.toJSONString(grpcRequest));
-            response = blockingStub.handle(request);
-        }
+        GrpcService.Response response = blockingStub.withWaitForReady().handle(request);
         return serializeService.deserialize(response);
     }
 
