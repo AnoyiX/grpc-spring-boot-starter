@@ -1,6 +1,5 @@
 package com.anoyi.grpc;
 
-import com.alibaba.fastjson.JSONObject;
 import com.anoyi.grpc.constant.SerializeType;
 import com.anoyi.grpc.service.GrpcRequest;
 import com.anoyi.grpc.service.GrpcResponse;
@@ -35,7 +34,15 @@ public class ServerContext {
         ByteString bytes = serializeService.serialize(grpcRequest);
         int value = (serializeType == null ? -1 : serializeType.getValue());
         GrpcService.Request request = GrpcService.Request.newBuilder().setSerialize(value).setRequest(bytes).build();
-        GrpcService.Response response = blockingStub.withWaitForReady().handle(request);
+        GrpcService.Response response = null;
+        try{
+            response = blockingStub.withWaitForReady().handle(request);
+        }catch (Exception exception){
+            log.warn("rpc exception: {}", exception.getMessage());
+            if ("UNAVAILABLE: io exception".equals(exception.getMessage().trim())){
+                response = blockingStub.withWaitForReady().handle(request);
+            }
+        }
         return serializeService.deserialize(response);
     }
 

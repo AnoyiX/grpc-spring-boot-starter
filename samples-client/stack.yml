@@ -1,0 +1,42 @@
+version: '3.7'
+services:
+  server:
+    image: "server:latest"
+    stop_grace_period: 20s
+    networks:
+      - idp_network
+    deploy:
+      replicas: 2
+      endpoint_mode: dnsrr
+      update_config:
+        parallelism: 1
+        delay: 0s
+        failure_action: rollback
+        max_failure_ratio: 0
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+  client:
+      image: "client:latest"
+      stop_grace_period: 20s
+      networks:
+        - idp_network
+      ports:
+        - target: 8081
+          published: 8081
+          protocol: tcp
+          mode: host
+      deploy:
+        mode: global
+        update_config:
+          parallelism: 1
+          delay: 0s
+          failure_action: rollback
+          max_failure_ratio: 0
+        restart_policy:
+          condition: on-failure
+          max_attempts: 3
+
+networks:
+  idp_network:
+    external: true

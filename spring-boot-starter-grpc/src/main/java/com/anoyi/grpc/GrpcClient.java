@@ -40,7 +40,9 @@ public class GrpcClient {
         List<RemoteServer> remoteServers = grpcProperties.getRemoteServers();
         if (!CollectionUtils.isEmpty(remoteServers)) {
             for (RemoteServer server : remoteServers) {
-                ManagedChannel channel = ManagedChannelBuilder.forAddress(server.getHost(), server.getPort()).usePlaintext().build();
+                ManagedChannel channel = ManagedChannelBuilder.forAddress(server.getHost(), server.getPort())
+                        .defaultLoadBalancingPolicy("round_robin")
+                        .usePlaintext().build();
                 if (clientInterceptor != null){
                     Channel newChannel = ClientInterceptors.intercept(channel, clientInterceptor);
                     serverMap.put(server.getServer(), new ServerContext(newChannel, serializeService));
