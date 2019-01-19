@@ -12,7 +12,7 @@ Spring Boot 快速集成 gRPC，轻松实现远程方法调用。
 
 名称|版本
 --|--
-grpc-java|1.15.0
-spring-boot|2.0.5.RELEASE
+grpc-java|1.18.0
+spring-boot|2.1.0.RELEASE
 sofa-hessian|3.3.2
 fastjson|1.2.49
