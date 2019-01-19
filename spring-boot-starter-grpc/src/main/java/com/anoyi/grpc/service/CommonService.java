@@ -5,6 +5,7 @@ import com.anoyi.rpc.CommonServiceGrpc;
 import com.anoyi.rpc.GrpcService;
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -17,6 +18,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
 
     private Map<Class, Object> serviceBeanMap = new ConcurrentHashMap<>();
@@ -46,9 +48,14 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
             FastMethod serviceFastMethod = serviceFastClass.getMethod(matchingMethod);
             Object result = serviceFastMethod.invoke(bean, args);
             response.success(result);
-        } catch (NoSuchBeanDefinitionException | ClassNotFoundException | InvocationTargetException exception) {
+        } catch (NoSuchBeanDefinitionException | ClassNotFoundException exception) {
             String message = exception.getClass().getName() + ": " + exception.getMessage();
             response.error(message, exception, exception.getStackTrace());
+            log.error("method not implement", exception.getCause());
+        } catch (InvocationTargetException exception) {
+            String message = exception.getCause().getClass().getName() + ": " + exception.getCause().getMessage();
+            response.error(message, exception.getCause(), exception.getCause().getStackTrace());
+            log.error("method invoke error", exception.getCause());
         }
         ByteString bytes = serializeService.serialize(response);
         GrpcService.Response grpcResponse = GrpcService.Response.newBuilder().setResponse(bytes).build();
