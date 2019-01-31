@@ -5,5 +5,5 @@ spring:
   grpc:
     remote-servers:
     - server: user
-      host: 
+      host: 127.0.0.1
       port: 6565
