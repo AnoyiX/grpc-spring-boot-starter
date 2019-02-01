@@ -7,7 +7,7 @@ services:
       - idp_network
     deploy:
       replicas: 2
-      endpoint_mode: vip
+      endpoint_mode: dnsrr
       update_config:
         parallelism: 1
         delay: 0s
