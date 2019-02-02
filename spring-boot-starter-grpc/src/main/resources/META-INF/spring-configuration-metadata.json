@@ -23,6 +23,26 @@
       "name": "spring.grpc.clientInterceptor",
       "type": "java.lang.Class",
       "sourceType": "com.anoyi.grpc.config.GrpcProperties"
+    },
+    {
+      "name": "spring.grpc.serverInterceptor",
+      "type": "java.lang.Class",
+      "sourceType": "com.anoyi.grpc.config.GrpcProperties"
+    },
+    {
+      "name": "spring.grpc.enableNameResolverRefresh",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.anoyi.grpc.config.GrpcProperties"
+    },
+    {
+      "name": "spring.grpc.nameResolverInitialDelay",
+      "type": "java.lang.Integer",
+      "sourceType": "com.anoyi.grpc.config.GrpcProperties"
+    },
+    {
+      "name": "spring.grpc.nameResolverPeriod",
+      "type": "java.lang.Integer",
+      "sourceType": "com.anoyi.grpc.config.GrpcProperties"
     }
   ]
 

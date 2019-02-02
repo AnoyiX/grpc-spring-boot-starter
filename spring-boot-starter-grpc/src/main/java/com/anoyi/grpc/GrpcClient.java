@@ -4,12 +4,14 @@ import com.anoyi.grpc.config.GrpcProperties;
 import com.anoyi.grpc.config.RemoteServer;
 import com.anoyi.grpc.service.SerializeService;
 import io.grpc.*;
+import io.grpc.internal.DnsNameResolverProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class GrpcClient {
@@ -42,6 +44,8 @@ public class GrpcClient {
             for (RemoteServer server : remoteServers) {
                 ManagedChannel channel = ManagedChannelBuilder.forAddress(server.getHost(), server.getPort())
                         .defaultLoadBalancingPolicy("round_robin")
+                        .nameResolverFactory(DnsNameResolverProvider.asFactory())
+                        .idleTimeout(30, TimeUnit.SECONDS)
                         .usePlaintext().build();
                 if (clientInterceptor != null){
                     Channel newChannel = ClientInterceptors.intercept(channel, clientInterceptor);
