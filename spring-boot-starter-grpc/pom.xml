@@ -102,9 +102,9 @@
 
         <!-- Sofa-Hessian 序列化/反序列化 -->
         <dependency>
-            <groupId>com.alipay.sofa</groupId>
-            <artifactId>hessian</artifactId>
-            <version>3.3.2</version>
+           <groupId>com.alipay.sofa</groupId>
+           <artifactId>hessian</artifactId>
+           <version>[3.3.6,)</version>
         </dependency>
 
     </dependencies>
