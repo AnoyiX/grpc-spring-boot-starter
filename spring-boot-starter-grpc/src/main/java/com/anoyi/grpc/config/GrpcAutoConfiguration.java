@@ -18,6 +18,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -42,9 +44,7 @@ import org.springframework.util.StringUtils;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -52,7 +52,8 @@ import java.util.regex.Pattern;
 @EnableConfigurationProperties(GrpcProperties.class)
 public class GrpcAutoConfiguration {
 
-    private static final Attributes NAME_RESOLVER_PARAMS = Attributes.newBuilder().set(NameResolver.Factory.PARAMS_DEFAULT_PORT, GrpcUtil.DEFAULT_PORT_PLAINTEXT).build();
+    private static final Attributes NAME_RESOLVER_PARAMS = Attributes.newBuilder().set(NameResolver.Factory
+            .PARAMS_DEFAULT_PORT, GrpcUtil.DEFAULT_PORT_PLAINTEXT).build();
 
     private static final Pattern URI_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9+.-]*:/.*");
 
@@ -94,13 +95,20 @@ public class GrpcAutoConfiguration {
         return server;
     }
 
+    @ConditionalOnMissingBean(name = "grpc-executor")
+    @Bean("grpc-executor")
+    public Executor grpcExecutor() {
+        return Executors.newFixedThreadPool(50);
+    }
+
     /**
      * RPC 客户端
      */
     @Bean
     @ConditionalOnMissingBean(GrpcClient.class)
-    public GrpcClient grpcClient(SerializeService serializeService) {
-        GrpcClient client = new GrpcClient(grpcProperties, serializeService);
+    public GrpcClient grpcClient(SerializeService serializeService, @Autowired @Qualifier("grpc-executor")
+            Executor executor) {
+        GrpcClient client = new GrpcClient(grpcProperties, serializeService, executor);
         client.init();
         return client;
     }
@@ -118,14 +126,16 @@ public class GrpcAutoConfiguration {
                     String target = remoteServer.getHost() + ":" + remoteServer.getPort();
                     NameResolver nameResolver = getNameResolver(NameResolverProvider.asFactory(), target);
                     nameResolver.refresh();
-                }), grpcProperties.getNameResolverInitialDelay(), grpcProperties.getNameResolverInitialDelay(), TimeUnit.SECONDS);
+                }), grpcProperties.getNameResolverInitialDelay(), grpcProperties.getNameResolverInitialDelay(),
+                TimeUnit.SECONDS);
         return scheduledExecutorService;
     }
 
     /**
      * 手动扫描 @GrpcService 注解的接口，生成动态代理类，注入到 Spring 容器
      */
-    public static class ExternalGrpcServiceScannerRegistrar implements BeanFactoryAware, ImportBeanDefinitionRegistrar, ResourceLoaderAware {
+    public static class ExternalGrpcServiceScannerRegistrar implements BeanFactoryAware,
+            ImportBeanDefinitionRegistrar, ResourceLoaderAware {
 
         private BeanFactory beanFactory;
 
@@ -142,7 +152,8 @@ public class GrpcAutoConfiguration {
         }
 
         @Override
-        public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+        public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry
+                registry) {
             ClassPathBeanDefinitionScanner scanner = new ClassPathGrpcServiceScanner(registry);
             scanner.setResourceLoader(this.resourceLoader);
             scanner.addIncludeFilter(new AnnotationTypeFilter(GrpcService.class));
@@ -153,9 +164,11 @@ public class GrpcAutoConfiguration {
         /**
          * 包扫描
          */
-        private Set<BeanDefinition> scanPackages(AnnotationMetadata importingClassMetadata, ClassPathBeanDefinitionScanner scanner) {
+        private Set<BeanDefinition> scanPackages(AnnotationMetadata importingClassMetadata,
+                                                 ClassPathBeanDefinitionScanner scanner) {
             List<String> packages = new ArrayList<>();
-            Map<String, Object> annotationAttributes = importingClassMetadata.getAnnotationAttributes(GrpcServiceScan.class.getCanonicalName());
+            Map<String, Object> annotationAttributes = importingClassMetadata.getAnnotationAttributes(GrpcServiceScan
+                    .class.getCanonicalName());
             if (annotationAttributes != null) {
                 String[] basePackages = (String[]) annotationAttributes.get("packages");
                 if (basePackages.length > 0) {
@@ -197,7 +210,8 @@ public class GrpcAutoConfiguration {
                     Class<?> target = Class.forName(className);
                     Object invoker = new Object();
                     InvocationHandler invocationHandler = new GrpcServiceProxy<>(target, invoker);
-                    Object proxy = Proxy.newProxyInstance(GrpcService.class.getClassLoader(), new Class[]{target}, invocationHandler);
+                    Object proxy = Proxy.newProxyInstance(GrpcService.class.getClassLoader(), new Class[]{target},
+                            invocationHandler);
 
                     // 注册到 Spring 容器
                     String beanName = ClassNameUtils.beanName(className);
