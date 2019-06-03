@@ -4,10 +4,16 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Data
 @ConfigurationProperties(prefix = "spring.grpc")
 public class GrpcProperties {
+
+    /**
+     *
+     */
+    public static final int DEFAULT_INVOKE_TIMEOUT = 3;
 
     /**
      * enable server start
@@ -18,6 +24,16 @@ public class GrpcProperties {
      * server listen port
      */
     private int port;
+
+    /**
+     *
+     */
+    private int invokeTimeout = DEFAULT_INVOKE_TIMEOUT;
+
+    /**
+     *
+     */
+    private TimeUnit invokeTimeoutUnit = TimeUnit.SECONDS;
 
     /**
      * client config

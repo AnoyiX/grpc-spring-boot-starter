@@ -11,6 +11,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -24,21 +25,24 @@ public class GrpcClient {
 
     private ClientInterceptor clientInterceptor;
 
-    public GrpcClient(GrpcProperties grpcProperties, SerializeService serializeService) {
-        this.grpcProperties = grpcProperties;
-        this.serializeService = serializeService;
+    private Executor executor;
+
+    public GrpcClient(GrpcProperties grpcProperties, SerializeService serializeService, Executor executor) {
+        this(grpcProperties, serializeService, null, executor);
     }
 
-    public GrpcClient(GrpcProperties grpcProperties, SerializeService serializeService, ClientInterceptor clientInterceptor) {
+    public GrpcClient(GrpcProperties grpcProperties, SerializeService serializeService, ClientInterceptor
+            clientInterceptor, Executor executor) {
         this.grpcProperties = grpcProperties;
         this.serializeService = serializeService;
         this.clientInterceptor = clientInterceptor;
+        this.executor = executor;
     }
 
     /**
      * 初始化
      */
-    public void init(){
+    public void init() {
         List<RemoteServer> remoteServers = grpcProperties.getRemoteServers();
         if (!CollectionUtils.isEmpty(remoteServers)) {
             for (RemoteServer server : remoteServers) {
@@ -47,21 +51,22 @@ public class GrpcClient {
                         .nameResolverFactory(DnsNameResolverProvider.asFactory())
                         .idleTimeout(30, TimeUnit.SECONDS)
                         .usePlaintext().build();
-                if (clientInterceptor != null){
+                if (clientInterceptor != null) {
                     Channel newChannel = ClientInterceptors.intercept(channel, clientInterceptor);
-                    serverMap.put(server.getServer(), new ServerContext(newChannel, serializeService));
-                }else {
+                    serverMap.put(server.getServer(), new ServerContext(newChannel, serializeService, executor));
+                } else {
                     Class clazz = grpcProperties.getClientInterceptor();
                     if (clazz == null) {
-                        serverMap.put(server.getServer(), new ServerContext(channel, serializeService));
-                    }else {
+                        serverMap.put(server.getServer(), new ServerContext(channel, serializeService, executor));
+                    } else {
                         try {
                             ClientInterceptor interceptor = (ClientInterceptor) clazz.newInstance();
                             Channel newChannel = ClientInterceptors.intercept(channel, interceptor);
-                            serverMap.put(server.getServer(), new ServerContext(newChannel, serializeService));
+                            serverMap.put(server.getServer(), new ServerContext(newChannel, serializeService,
+                                    executor));
                         } catch (InstantiationException | IllegalAccessException e) {
                             log.warn("ClientInterceptor cannot use, ignoring...");
-                            serverMap.put(server.getServer(), new ServerContext(channel, serializeService));
+                            serverMap.put(server.getServer(), new ServerContext(channel, serializeService, executor));
                         }
                     }
                 }

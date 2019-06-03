@@ -43,6 +43,11 @@ public class UserServiceByFastJSONImpl implements UserServiceByFastJSON {
     @Override
     public List<UserEntity> findAll() {
         Collection<UserEntity> values = userMap.values();
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return new ArrayList<>(values);
     }
 

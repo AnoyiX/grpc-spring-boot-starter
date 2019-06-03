@@ -1,9 +1,11 @@
 package com.anoyi.grpc.service;
 
+import com.anoyi.grpc.util.ProtobufUtils;
 import com.anoyi.grpc.util.SerializeUtils;
 import com.anoyi.rpc.CommonServiceGrpc;
 import com.anoyi.rpc.GrpcService;
 import com.google.protobuf.ByteString;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -16,6 +18,7 @@ import org.springframework.context.support.AbstractApplicationContext;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -47,6 +50,10 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
             FastClass serviceFastClass = FastClass.create(bean.getClass());
             FastMethod serviceFastMethod = serviceFastClass.getMethod(matchingMethod);
             Object result = serviceFastMethod.invoke(bean, args);
+            if (matchingMethod.getReturnType() == CompletableFuture.class) {
+                asyncProcess((CompletableFuture) result, serializeService, responseObserver);
+                return;
+            }
             response.success(result);
         } catch (NoSuchBeanDefinitionException | ClassNotFoundException exception) {
             String message = exception.getClass().getName() + ": " + exception.getMessage();
@@ -63,6 +70,24 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
         responseObserver.onCompleted();
     }
 
+    private void asyncProcess(CompletableFuture future, SerializeService serializeService, StreamObserver<GrpcService
+            .Response> responseObserver) {
+        GrpcResponse response = new GrpcResponse();
+        future.whenComplete((r, t) -> {
+            if (t != null) {
+                Throwable cause = ((Exception) t).getCause();
+                response.error(cause + ":" + cause.getMessage(), cause, cause.getStackTrace());
+                response.getException().printStackTrace();
+            }else{
+                response.setResult(r);
+            }
+
+            ByteString bytes = serializeService.serialize(response);
+            GrpcService.Response grpcResponse = GrpcService.Response.newBuilder().setResponse(bytes).build();
+            responseObserver.onNext(grpcResponse);
+            responseObserver.onCompleted();
+        });
+    }
     /**
      * 获取 Service Bean
      */
