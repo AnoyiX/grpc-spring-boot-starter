@@ -17,7 +17,7 @@ class V0LocalTest extends Simulation {
   val scn = scenario("性能测试[并发" + userCount + "][总次数" + maxCount + "]").repeat(repeatCount) {
     exec(
       http("V0-添加用户/本地调用")
-        .post("http://localhost:8080/v0/user/add")
+        .post("http://localhost:8091/v0/user/add")
         .header("Content-Type", "application/json")
         .body(StringBody(data))
         .check(status.is(200))
@@ -25,7 +25,7 @@ class V0LocalTest extends Simulation {
   }.repeat(repeatCount) {
     exec(
       http("V0-查询用户/本地调用")
-        .get("http://localhost:8080/v0/user/list")
+        .get("http://localhost:8091/v0/user/list")
         .check(status.is(200))
     )
   }

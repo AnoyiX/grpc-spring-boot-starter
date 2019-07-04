@@ -17,7 +17,7 @@ class V3FastJsonTest extends Simulation {
   val scn = scenario("性能测试[并发" + userCount + "][总次数" + maxCount + "]").repeat(repeatCount) {
     exec(
       http("V3-添加用户/fastjson")
-        .post("http://localhost:8081/v3/user/add")
+        .post("http://localhost:8090/v3/user/add")
         .header("Content-Type", "application/json")
         .body(StringBody(data))
         .check(status.is(200))
@@ -25,7 +25,7 @@ class V3FastJsonTest extends Simulation {
   }.repeat(repeatCount) {
     exec(
       http("V3-查询用户/fastjson")
-        .get("http://localhost:8081/v3/user/list")
+        .get("http://localhost:8090/v3/user/list")
         .check(status.is(200))
     )
   }

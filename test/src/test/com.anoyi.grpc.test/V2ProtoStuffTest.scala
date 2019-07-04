@@ -17,7 +17,7 @@ class V2ProtoStuffTest extends Simulation {
   val scn = scenario("性能测试[并发" + userCount + "][总次数" + maxCount + "]").repeat(repeatCount) {
     exec(
       http("V2-添加用户/proto")
-        .post("http://localhost:8081/v2/user/add")
+        .post("http://localhost:8090/v2/user/add")
         .header("Content-Type", "application/json")
         .body(StringBody(data))
         .check(status.is(200))
@@ -25,7 +25,7 @@ class V2ProtoStuffTest extends Simulation {
   }.repeat(repeatCount) {
     exec(
       http("V2-查询用户/proto-stuff")
-        .get("http://localhost:8081/v2/user/list")
+        .get("http://localhost:8090/v2/user/list")
         .check(status.is(200))
     )
   }
