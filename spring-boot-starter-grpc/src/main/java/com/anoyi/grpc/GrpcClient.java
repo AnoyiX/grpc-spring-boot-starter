@@ -44,7 +44,7 @@ public class GrpcClient {
             for (RemoteServer server : remoteServers) {
                 ManagedChannel channel = ManagedChannelBuilder.forAddress(server.getHost(), server.getPort())
                         .defaultLoadBalancingPolicy("round_robin")
-                        .nameResolverFactory(DnsNameResolverProvider.asFactory())
+                        .nameResolverFactory(new DnsNameResolverProvider())
                         .idleTimeout(30, TimeUnit.SECONDS)
                         .usePlaintext().build();
                 if (clientInterceptor != null){

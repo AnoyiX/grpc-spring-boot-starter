@@ -34,19 +34,4 @@ public class GrpcProperties {
      */
     private Class serverInterceptor;
 
-    /**
-     * enable refresh dns record
-     */
-    private boolean enableNameResolverRefresh;
-
-    /**
-     * refresher init delay (s)
-     */
-    private int nameResolverInitialDelay = 30;
-
-    /**
-     * refresher period (s)
-     */
-    private int nameResolverPeriod = 30;
-
 }

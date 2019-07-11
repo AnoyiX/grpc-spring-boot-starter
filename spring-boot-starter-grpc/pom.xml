@@ -6,12 +6,11 @@
 
     <groupId>com.anoyi</groupId>
     <artifactId>spring-boot-starter-grpc</artifactId>
-    <version>2.1.1-SNAPSHOT</version>
+    <version>2.1.5-SNAPSHOT</version>
 
     <properties>
-        <spring-boot.version>2.1.0.RELEASE</spring-boot.version>
-        <fastjson.version>1.2.47</fastjson.version>
-        <grpc.version>1.18.0</grpc.version>
+        <spring-boot.version>2.1.5.RELEASE</spring-boot.version>
+        <grpc.version>1.22.1</grpc.version>
     </properties>
 
     <dependencyManagement>
@@ -70,7 +69,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.2</version>
         </dependency>
 
         <!-- 通用工具类 -->
@@ -97,14 +95,14 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.49</version>
+            <version>1.2.58</version>
         </dependency>
 
         <!-- Sofa-Hessian 序列化/反序列化 -->
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>hessian</artifactId>
-            <version>3.3.2</version>
+            <version>3.3.6</version>
         </dependency>
 
     </dependencies>
@@ -149,14 +147,18 @@
 
     <!-- Maven 仓库 -->
     <distributionManagement>
+
         <repository>
-            <id>central</id>
-            <url>https://mvn.anoyi.com/artifactory/libs-release-local</url>
+            <id>rdc-releases</id>
+            <url>https://repo.rdc.aliyun.com/repository/73801-release-g4ZTFl/</url>
         </repository>
+
         <snapshotRepository>
-            <id>central</id>
-            <url>https://mvn.anoyi.com/artifactory/libs-snapshot-local</url>
+            <id>rdc-snapshots</id>
+            <url>https://repo.rdc.aliyun.com/repository/73801-snapshot-e8LM6K/</url>
         </snapshotRepository>
+
     </distributionManagement>
+
 
 </project>

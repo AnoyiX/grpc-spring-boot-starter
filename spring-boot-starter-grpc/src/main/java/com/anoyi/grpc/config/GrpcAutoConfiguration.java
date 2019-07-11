@@ -9,10 +9,6 @@ import com.anoyi.grpc.service.CommonService;
 import com.anoyi.grpc.service.SerializeService;
 import com.anoyi.grpc.service.impl.SofaHessianSerializeService;
 import com.anoyi.grpc.util.ClassNameUtils;
-import io.grpc.Attributes;
-import io.grpc.NameResolver;
-import io.grpc.NameResolverProvider;
-import io.grpc.internal.GrpcUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -21,7 +17,6 @@ import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -39,22 +34,12 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Configuration
 @EnableConfigurationProperties(GrpcProperties.class)
 public class GrpcAutoConfiguration {
-
-    private static final Attributes NAME_RESOLVER_PARAMS = Attributes.newBuilder().set(NameResolver.Factory.PARAMS_DEFAULT_PORT, GrpcUtil.DEFAULT_PORT_PLAINTEXT).build();
-
-    private static final Pattern URI_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9+.-]*:/.*");
 
     private final AbstractApplicationContext applicationContext;
 
@@ -103,23 +88,6 @@ public class GrpcAutoConfiguration {
         GrpcClient client = new GrpcClient(grpcProperties, serializeService);
         client.init();
         return client;
-    }
-
-    /**
-     * NameResolver Refresher
-     */
-    @Bean
-    @ConditionalOnBean(GrpcClient.class)
-    @ConditionalOnProperty(value = "spring.grpc.enableNameResolverRefresh", havingValue = "true")
-    public ScheduledExecutorService refreshDNSRecordService() {
-        final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
-        scheduledExecutorService.scheduleAtFixedRate(() ->
-                grpcProperties.getRemoteServers().forEach(remoteServer -> {
-                    String target = remoteServer.getHost() + ":" + remoteServer.getPort();
-                    NameResolver nameResolver = getNameResolver(NameResolverProvider.asFactory(), target);
-                    nameResolver.refresh();
-                }), grpcProperties.getNameResolverInitialDelay(), grpcProperties.getNameResolverInitialDelay(), TimeUnit.SECONDS);
-        return scheduledExecutorService;
     }
 
     /**
@@ -207,39 +175,6 @@ public class GrpcAutoConfiguration {
                 }
             }
         }
-    }
-
-    /**
-     * 获取 NameResolver
-     */
-    private NameResolver getNameResolver(NameResolver.Factory nameResolverFactory, String target) {
-        URI targetUri = null;
-        StringBuilder uriSyntaxErrors = new StringBuilder();
-        try {
-            targetUri = new URI(target);
-        } catch (URISyntaxException e) {
-            uriSyntaxErrors.append(e.getMessage());
-        }
-        if (targetUri != null) {
-            NameResolver resolver = nameResolverFactory.newNameResolver(targetUri, NAME_RESOLVER_PARAMS);
-            if (resolver != null) {
-                return resolver;
-            }
-        }
-        if (!URI_PATTERN.matcher(target).matches()) {
-            try {
-                targetUri = new URI(nameResolverFactory.getDefaultScheme(), "", "/" + target, null);
-            } catch (URISyntaxException e) {
-                throw new IllegalArgumentException(e);
-            }
-            NameResolver resolver = nameResolverFactory.newNameResolver(targetUri, NAME_RESOLVER_PARAMS);
-            if (resolver != null) {
-                return resolver;
-            }
-        }
-        throw new IllegalArgumentException(String.format(
-                "cannot find a NameResolver for %s%s",
-                target, uriSyntaxErrors.length() > 0 ? " (" + uriSyntaxErrors + ")" : ""));
     }
 
 }

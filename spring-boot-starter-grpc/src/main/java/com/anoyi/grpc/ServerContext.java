@@ -36,11 +36,11 @@ public class ServerContext {
         GrpcService.Request request = GrpcService.Request.newBuilder().setSerialize(value).setRequest(bytes).build();
         GrpcService.Response response = null;
         try{
-            response = blockingStub.withWaitForReady().handle(request);
+            response = blockingStub.handle(request);
         }catch (Exception exception){
             log.warn("rpc exception: {}", exception.getMessage());
             if ("UNAVAILABLE: io exception".equals(exception.getMessage().trim())){
-                response = blockingStub.withWaitForReady().handle(request);
+                response = blockingStub.handle(request);
             }
         }
         return serializeService.deserialize(response);
