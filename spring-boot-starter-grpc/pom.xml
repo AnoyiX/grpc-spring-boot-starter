@@ -10,7 +10,7 @@
 
     <properties>
         <spring-boot.version>2.1.5.RELEASE</spring-boot.version>
-        <grpc.version>1.22.1</grpc.version>
+        <grpc.version>1.22.0</grpc.version>
     </properties>
 
     <dependencyManagement>
