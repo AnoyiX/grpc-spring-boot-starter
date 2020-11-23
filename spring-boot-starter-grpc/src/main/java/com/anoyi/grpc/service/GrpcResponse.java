@@ -35,16 +35,18 @@ public class GrpcResponse implements Serializable {
      */
     private StackTraceElement[] stackTrace;
 
-    void error(String message, Throwable exception, StackTraceElement[] stackTrace){
+    public GrpcResponse error(String message, Throwable exception, StackTraceElement[] stackTrace){
         this.status = GrpcResponseStatus.ERROR.getCode();
         this.message = message;
         this.exception = exception;
         this.stackTrace = stackTrace;
+        return this;
     }
 
-    void success(Object result){
+    public GrpcResponse success(Object result){
         this.status = GrpcResponseStatus.SUCCESS.getCode();
         this.result = result;
+        return this;
     }
 
 }
