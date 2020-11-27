@@ -17,12 +17,17 @@ public class GrpcProperties {
     /**
      * server listen port
      */
-    private int port;
+    private int port = 6565;
 
     /**
      * client config
      */
     private List<RemoteServer> remoteServers;
+
+    /**
+     * withDeadline duration TimeUnit.MILLISECONDS
+     */
+    private long duration = 30000;
 
     /**
      * client interceptor

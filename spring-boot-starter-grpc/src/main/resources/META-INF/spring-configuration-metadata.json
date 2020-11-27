@@ -20,6 +20,12 @@
       "defaultValue": 6565
     },
     {
+      "name": "spring.grpc.duration",
+      "type": "java.lang.Long",
+      "sourceType": "com.anoyi.grpc.config.GrpcProperties",
+      "defaultValue": 30000
+    },
+    {
       "name": "spring.grpc.clientInterceptor",
       "type": "java.lang.Class",
       "sourceType": "com.anoyi.grpc.config.GrpcProperties"

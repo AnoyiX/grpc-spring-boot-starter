@@ -1,5 +1,6 @@
 package com.anoyi.grpc;
 
+import com.anoyi.grpc.config.GrpcProperties;
 import com.anoyi.grpc.constant.SerializeType;
 import com.anoyi.grpc.service.GrpcRequest;
 import com.anoyi.grpc.service.GrpcResponse;
@@ -11,6 +12,8 @@ import com.google.protobuf.ByteString;
 import io.grpc.Channel;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 public class ServerContext {
 
@@ -18,11 +21,14 @@ public class ServerContext {
 
     private final SerializeService defaultSerializeService;
 
+    private final GrpcProperties grpcProperties;
+
     private CommonServiceGrpc.CommonServiceBlockingStub blockingStub;
 
-    ServerContext(Channel channel, SerializeService serializeService) {
+    ServerContext(Channel channel, SerializeService serializeService, GrpcProperties grpcProperties) {
         this.channel = channel;
         this.defaultSerializeService = serializeService;
+        this.grpcProperties = grpcProperties;
         blockingStub = CommonServiceGrpc.newBlockingStub(channel);
     }
 
@@ -36,11 +42,11 @@ public class ServerContext {
         GrpcService.Request request = GrpcService.Request.newBuilder().setSerialize(value).setRequest(bytes).build();
         GrpcService.Response response = null;
         try{
-            response = blockingStub.handle(request);
+            response = blockingStub.withDeadlineAfter(grpcProperties.getDuration(), TimeUnit.MILLISECONDS).handle(request);
         }catch (Exception exception){
             log.warn("rpc exception: {}", exception.getMessage());
             if ("UNAVAILABLE: io exception".equals(exception.getMessage().trim())){
-                response = blockingStub.handle(request);
+                response = blockingStub.withDeadlineAfter(grpcProperties.getDuration(), TimeUnit.MILLISECONDS).handle(request);
             }
         }
         return serializeService.deserialize(response);
