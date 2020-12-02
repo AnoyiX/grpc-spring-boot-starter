@@ -50,14 +50,24 @@ public class GrpcClient {
         if(CollectionUtils.isEmpty(remoteServers) && StringUtils.hasText(grpcProperties.getNginxHost())){
             remoteServers = new ArrayList<>();
             RemoteServer nginxServer = new RemoteServer();
-            try {
-                String[] addrArr = grpcProperties.getNginxHost().split(":");
-                nginxServer.setHost(addrArr[0]);
-                nginxServer.setPort(Integer.valueOf(addrArr[1]));
+            if(grpcProperties.getNginxHost().indexOf(":") > -1) {
+                try {
+                    String[] addrArr = grpcProperties.getNginxHost().split(":");
+                    nginxServer.setHost(addrArr[0]);
+                    nginxServer.setPort(Integer.valueOf(addrArr[1]));
+                } catch (Exception e) {
+                    log.error("nginxHost 参数解析异常...", e);
+                }
+            }else if(grpcProperties.getNginxHost().indexOf("https://") == 0){
+                nginxServer.setHost(grpcProperties.getNginxHost());
+                nginxServer.setPort(443);
+            }else if(grpcProperties.getNginxHost().indexOf("http://") == 0){
+                nginxServer.setHost(grpcProperties.getNginxHost());
+                nginxServer.setPort(80);
+            }
+            if(StringUtils.hasText(nginxServer.getHost())){
                 nginxServer.setServer(GrpcClient.CENTRE_SERVER_NAME);
                 remoteServers.add(nginxServer);
-            }catch (Exception e){
-                log.error("nginxHost 参数解析异常...", e);
             }
         }
         if (!CollectionUtils.isEmpty(remoteServers)) {
