@@ -55,10 +55,10 @@ public class GrpcClient {
                 nginxServer.setHost(addrArr[0]);
                 nginxServer.setPort(Integer.valueOf(addrArr[1]));
                 nginxServer.setServer(GrpcClient.CENTRE_SERVER_NAME);
+                remoteServers.add(nginxServer);
             }catch (Exception e){
                 log.error("nginxHost 参数解析异常...", e);
             }
-            remoteServers.add(nginxServer);
         }
         if (!CollectionUtils.isEmpty(remoteServers)) {
             for (RemoteServer server : remoteServers) {
