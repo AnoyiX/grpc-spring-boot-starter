@@ -7,7 +7,9 @@ import io.grpc.*;
 import io.grpc.internal.DnsNameResolverProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,11 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class GrpcClient {
+
+    /**
+     * 中心服务名称
+     */
+    private static final String CENTRE_SERVER_NAME = "centreServer";
 
     private static final Map<String, ServerContext> serverMap = new HashMap<>();
 
@@ -40,12 +47,25 @@ public class GrpcClient {
      */
     public void init(){
         List<RemoteServer> remoteServers = grpcProperties.getRemoteServers();
+        if(CollectionUtils.isEmpty(remoteServers) && StringUtils.hasText(grpcProperties.getNginxHost())){
+            remoteServers = new ArrayList<>();
+            RemoteServer nginxServer = new RemoteServer();
+            try {
+                String[] addrArr = grpcProperties.getNginxHost().split(":");
+                nginxServer.setHost(addrArr[0]);
+                nginxServer.setPort(Integer.valueOf(addrArr[1]));
+                nginxServer.setServer(GrpcClient.CENTRE_SERVER_NAME);
+            }catch (Exception e){
+                log.error("nginxHost 参数解析异常...", e);
+            }
+            remoteServers.add(nginxServer);
+        }
         if (!CollectionUtils.isEmpty(remoteServers)) {
             for (RemoteServer server : remoteServers) {
                 ManagedChannel channel = ManagedChannelBuilder.forAddress(server.getHost(), server.getPort())
                         .defaultLoadBalancingPolicy("round_robin")
                         .nameResolverFactory(new DnsNameResolverProvider())
-                        .idleTimeout(30, TimeUnit.SECONDS)
+                        .idleTimeout(3, TimeUnit.MINUTES)
                         .usePlaintext().build();
                 if (clientInterceptor != null){
                     Channel newChannel = ClientInterceptors.intercept(channel, clientInterceptor);
@@ -73,7 +93,14 @@ public class GrpcClient {
      * 连接远程服务
      */
     public static ServerContext connect(String serverName) {
-        return serverMap.get(serverName);
+        ServerContext serverContext = null;
+        if(StringUtils.hasText(serverName)){
+            serverContext = serverMap.get(serverName);
+        }
+        if(serverContext == null){
+            serverContext = serverMap.get(GrpcClient.CENTRE_SERVER_NAME);
+        }
+        return serverContext;
     }
 
 }

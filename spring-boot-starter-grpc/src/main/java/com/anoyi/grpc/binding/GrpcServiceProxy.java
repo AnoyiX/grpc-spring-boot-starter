@@ -47,7 +47,7 @@ public class GrpcServiceProxy<T> implements InvocationHandler {
         if (serializeTypeArray.length > 0) {
             serializeType = serializeTypeArray[0];
         }
-        GrpcResponse response = GrpcClient.connect(server).handle(serializeType, request);
+        GrpcResponse response = GrpcClient.connect(server).handle(serializeType, request, annotation);
         if (GrpcResponseStatus.ERROR.getCode() == response.getStatus()) {
             Throwable throwable = response.getException();
             GrpcException exception = new GrpcException(throwable.getClass().getName() + ": " + throwable.getMessage());
