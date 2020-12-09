@@ -147,6 +147,12 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
+                <version>3.8.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
             </plugin>
         </plugins>
     </build>
