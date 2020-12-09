@@ -51,6 +51,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
             <scope>provided</scope>
+            <version>${spring-boot.version}</version>
         </dependency>
 
         <!-- Spring Boot 配置处理 -->
@@ -58,6 +59,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
+            <version>${spring-boot.version}</version>
         </dependency>
 
         <!-- Spring Boot 自动配置 -->
@@ -65,12 +67,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
             <scope>provided</scope>
+            <version>${spring-boot.version}</version>
         </dependency>
 
         <!-- Lombok 代码简化 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>1.18.16</version>
         </dependency>
 
         <!-- 通用工具类 -->
