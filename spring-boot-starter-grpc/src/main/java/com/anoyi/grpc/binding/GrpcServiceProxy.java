@@ -8,7 +8,6 @@ import com.anoyi.grpc.exception.GrpcException;
 import com.anoyi.grpc.service.GrpcRequest;
 import com.anoyi.grpc.service.GrpcResponse;
 import org.springframework.cglib.proxy.InvocationHandler;
-import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -47,7 +46,7 @@ public class GrpcServiceProxy<T> implements InvocationHandler {
         if (serializeTypeArray.length > 0) {
             serializeType = serializeTypeArray[0];
         }
-        GrpcResponse response = GrpcClient.connect(server).handle(serializeType, request, annotation);
+        GrpcResponse response = GrpcClient.connect(server, className).handle(serializeType, request, annotation);
         if (GrpcResponseStatus.ERROR.getCode() == response.getStatus()) {
             Throwable throwable = response.getException();
             GrpcException exception = new GrpcException(throwable.getClass().getName() + ": " + throwable.getMessage());

@@ -23,6 +23,11 @@ public class GrpcClient {
      */
     private static final String CENTRE_SERVER_NAME = "centreServer";
 
+    /**
+     * 中心服务类型，0不使用中心服务，1nginx
+     */
+    private static int centreServerType = 0;
+
     private static final Map<String, ServerContext> serverMap = new HashMap<>();
 
     private final GrpcProperties grpcProperties;
@@ -48,6 +53,7 @@ public class GrpcClient {
     public void init(){
         List<RemoteServer> remoteServers = grpcProperties.getRemoteServers();
         if(CollectionUtils.isEmpty(remoteServers) && StringUtils.hasText(grpcProperties.getNginxHost())){
+            centreServerType = 1;
             remoteServers = new ArrayList<>();
             RemoteServer nginxServer = new RemoteServer();
             if(grpcProperties.getNginxHost().indexOf(":") > -1) {
@@ -102,12 +108,22 @@ public class GrpcClient {
     /**
      * 连接远程服务
      */
-    public static ServerContext connect(String serverName) {
+    public static ServerContext connect(String serverName, String clazz) {
         ServerContext serverContext = null;
-        if(StringUtils.hasText(serverName)){
-            serverContext = serverMap.get(serverName);
-        }
-        if(serverContext == null){
+        if(centreServerType == 0){
+            if(StringUtils.hasText(serverName)){
+                //通过服务名称查找
+                serverContext = serverMap.get(serverName);
+            }else if(StringUtils.hasText(clazz)){
+                //通过包名查找
+                for(String key : serverMap.keySet()){
+                    if(clazz.indexOf(key) == 0){
+                        serverContext = serverMap.get(key);
+                        break;
+                    }
+                }
+            }
+        }else if(centreServerType == 1){
             serverContext = serverMap.get(GrpcClient.CENTRE_SERVER_NAME);
         }
         return serverContext;
