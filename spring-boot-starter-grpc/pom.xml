@@ -157,20 +157,4 @@
         </plugins>
     </build>
 
-    <!-- Maven 仓库 -->
-    <distributionManagement>
-
-        <repository>
-            <id>rdc-releases</id>
-            <url>https://repo.rdc.aliyun.com/repository/73801-release-g4ZTFl/</url>
-        </repository>
-
-        <snapshotRepository>
-            <id>rdc-snapshots</id>
-            <url>https://repo.rdc.aliyun.com/repository/73801-snapshot-e8LM6K/</url>
-        </snapshotRepository>
-
-    </distributionManagement>
-
-
 </project>
