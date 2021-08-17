@@ -13,13 +13,14 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.cglib.reflect.FastClass;
 import org.springframework.cglib.reflect.FastMethod;
 import org.springframework.context.support.AbstractApplicationContext;
-
+import org.springframework.stereotype.Service;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
+@Service
 public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
 
     private Map<Class, Object> serviceBeanMap = new ConcurrentHashMap<>();
