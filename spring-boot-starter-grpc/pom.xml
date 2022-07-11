@@ -104,7 +104,7 @@
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>hessian</artifactId>
-            <version>3.3.12</version>
+            <version>3.3.13</version>
         </dependency>
 
     </dependencies>
